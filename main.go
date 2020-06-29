@@ -29,7 +29,7 @@ func mapperList_d(v interface{}, index int) interface{}{
 	return fmt.Sprintf("%d - RESULT upodated => RESULTADO %v", index, v)
 }
 
-func converMap(collection colMap, mapper mapperMap) []interface{} {
+func convertMap(collection colMap, mapper mapperMap) []interface{} {
 	var res []interface{}
 	index := 0
 	for k, v := range collection {
@@ -39,7 +39,7 @@ func converMap(collection colMap, mapper mapperMap) []interface{} {
 	return res
 }
 
-func converList(collection colList, mapper mapperList) []interface{} {
+func convertList(collection colList, mapper mapperList) []interface{} {
 	var res []interface{}
 	index := 0
 	for v := range collection {
