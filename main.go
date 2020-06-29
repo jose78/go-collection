@@ -9,20 +9,38 @@ type colList []interface{}
 type mapperList func(interface{}, int) interface{}
 type mapperMap func(interface{}, interface{}, int) interface{}
 
+
+type User struct{
+	name string
+	age int
+	id int
+}
+
 func main() {
 	mm := make(colMap)
-	mm["2"] = 8
-	mm[2] = 88888
+	mm[1] = User{"Mon", 40 ,1}
+	mm[3] = User{"Alvaro", 6 ,3}
+	mm[4] = User{"Sofi", 3 ,4}
 
 	convertedMap := converMap(mm, mapperMap_d)
 	fmt.Println(convertedMap)
 	fmt.Println(converList(convertedMap, mapperList_d))
 	fmt.Println(join(converList(convertedMap, mapperList_d) , ", "))
+	
+	
+	
+	data := func (){
+		fmt.Println("Hola")
+	}
+	
+	
+	data()
 
 }
 
 func mapperMap_d(k interface{}, v interface{}, index int) interface{}{
-	return fmt.Sprintf("RESULTADO %v %d", k, v)
+	user := v.(User)	
+	return fmt.Sprintf("id:[%v], name:[%s]", user.id, user.name)
 }
 
 func mapperList_d(v interface{}, index int) interface{}{
@@ -41,10 +59,8 @@ func convertMap(collection colMap, mapper mapperMap) []interface{} {
 
 func convertList(collection colList, mapper mapperList) []interface{} {
 	var res []interface{}
-	index := 0
-	for v := range collection {
-		res = append(res, mapper(v, index))
-		index++
+	for index, v := range collection {
+		res = append(res, mapper(v,index))
 	}
 	return res
 }
