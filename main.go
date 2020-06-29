@@ -4,26 +4,32 @@ import (
 	"fmt"
 )
 
-type key interface{}
-type value interface{}
-type colMap map[key]value
-type result interface{}
-type mapper func(key, value, int) result
+type colMap map[interface{}]interface{}
+type colList []interface{}
+type mapperList func(interface{}, int) interface{}
+type mapperMap func(interface{}, interface{}, int) interface{}
 
 func main() {
 	mm := make(colMap)
 	mm["2"] = 8
-	mm["3"] = 558
-	mm["4"] = 28
-	fmt.Println(converMap(mm, mapperd))
+	mm[2] = 88888
+
+	convertedMap := converMap(mm, mapperMap_d)
+	fmt.Println(convertedMap)
+	fmt.Println(converList(convertedMap, mapperList_d))
+
 }
 
-func mapperd(k key, v value, index int) result {
-	return fmt.Sprintf("%d - RESULTADO %s %d", index, k, v)
+func mapperMap_d(k interface{}, v interface{}, index int) interface{}{
+	return fmt.Sprintf("RESULTADO %v %d", k, v)
 }
 
-func converMap(collection colMap, mapper mapper) []result {
-	var res []result
+func mapperList_d(v interface{}, index int) interface{}{
+	return fmt.Sprintf("%d - RESULT upodated => RESULTADO %v", index, v)
+}
+
+func converMap(collection colMap, mapper mapperMap) []interface{} {
+	var res []interface{}
 	index := 0
 	for k, v := range collection {
 		res = append(res, mapper(k, v, index))
@@ -32,4 +38,12 @@ func converMap(collection colMap, mapper mapper) []result {
 	return res
 }
 
-
+func converList(collection colList, mapper mapperList) []interface{} {
+	var res []interface{}
+	index := 0
+	for v := range collection {
+		res = append(res, mapper(v, index))
+		index++
+	}
+	return res
+}
