@@ -4,31 +4,32 @@ import (
 	"fmt"
 )
 
-
-type key interface {}
-type value interface {}
+type key interface{}
+type value interface{}
 type colMap map[key]value
-type result interface {} 
-type mapper func(key , value) result 
+type result interface{}
+type mapper func(key, value, int) result
 
 func main() {
 	mm := make(colMap)
-	mm["2"] = 8	
-	fmt.Println(fmap(mm, mapperd))
+	mm["2"] = 8
+	mm["3"] = 558
+	mm["4"] = 28
+	fmt.Println(converMap(mm, mapperd))
 }
 
-func mapperd(k key, v  value) result{
-	return fmt.Sprintf("RESULTADO %s %d" , k , v)
+func mapperd(k key, v value, index int) result {
+	return fmt.Sprintf("%d - RESULTADO %s %d", index, k, v)
 }
 
-
-func fmap(collection colMap, mapper mapper) []result{
+func converMap(collection colMap, mapper mapper) []result {
 	var res []result
-    	for k,v := range collection {
-		res = append(res, mapper(k, v))
+	index := 0
+	for k, v := range collection {
+		res = append(res, mapper(k, v, index))
+		index++
 	}
 	return res
 }
-
 
 
