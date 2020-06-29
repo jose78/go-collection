@@ -17,6 +17,7 @@ func main() {
 	convertedMap := converMap(mm, mapperMap_d)
 	fmt.Println(convertedMap)
 	fmt.Println(converList(convertedMap, mapperList_d))
+	fmt.Println(join(converList(convertedMap, mapperList_d) , ", "))
 
 }
 
@@ -44,6 +45,16 @@ func converList(collection colList, mapper mapperList) []interface{} {
 	for v := range collection {
 		res = append(res, mapper(v, index))
 		index++
+	}
+	return res
+}
+
+func join(lst []interface{}, separator string) string{
+	var res = ""
+	var newSeparator = ""
+	for _ , value := range lst{
+		res = fmt.Sprintf("%s%s%v", res, newSeparator, value)
+		newSeparator = separator
 	}
 	return res
 }
