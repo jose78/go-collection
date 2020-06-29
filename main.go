@@ -9,7 +9,7 @@ type colList []interface{}
 type mapperList func(interface{}, int) interface{}
 type mapperMap func(interface{}, interface{}, int) interface{}
 
-
+// User is the basic structure for demo
 type User struct{
 	name string
 	age int
@@ -22,10 +22,11 @@ func main() {
 	mm[3] = User{"Alvaro", 6 ,3}
 	mm[4] = User{"Sofi", 3 ,4}
 
-	convertedMap := converMap(mm, mapperMap_d)
+	convertedMap := convertMap(mm, fnMapperMap)
 	fmt.Println(convertedMap)
-	fmt.Println(converList(convertedMap, mapperList_d))
-	fmt.Println(join(converList(convertedMap, mapperList_d) , ", "))
+	fmt.Println(convertList(convertedMap, fnMapperList))
+	fmt.Println(reverseList(convertList(convertedMap, fnMapperList)))
+	fmt.Println(join(convertList(convertedMap, fnMapperList) , ", "))
 	
 	
 	
@@ -38,12 +39,12 @@ func main() {
 
 }
 
-func mapperMap_d(k interface{}, v interface{}, index int) interface{}{
+func fnMapperMap(k interface{}, v interface{}, index int) interface{}{
 	user := v.(User)	
 	return fmt.Sprintf("id:[%v], name:[%s]", user.id, user.name)
 }
 
-func mapperList_d(v interface{}, index int) interface{}{
+func fnMapperList(v interface{}, index int) interface{}{
 	return fmt.Sprintf("%d - RESULT upodated => RESULTADO %v", index, v)
 }
 
@@ -61,6 +62,14 @@ func convertList(collection colList, mapper mapperList) []interface{} {
 	var res []interface{}
 	for index, v := range collection {
 		res = append(res, mapper(v,index))
+	}
+	return res
+}
+
+func reverseList(lst []interface{}) []interface{} {
+	var res []interface{}
+	for index := len(lst) -1; index >= 0; index --{
+		res = append (res , lst[index])
 	}
 	return res
 }
