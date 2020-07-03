@@ -5,38 +5,25 @@ import (
 	"github.com/jose78/go-collenction-utils/collections"
 )
 
-type user struct{
+type user struct {
 	name string
-	age int
-	id int
+	age  int
+	id   int
 }
 
-
-
-
 func main() {
+	examplesWithList()
+}
 
-	lst := []user{{"Alvaro" , 1 , 1}, {"Sofi" , 2, 2}}
-
-
-
-	for index, item := range lst{
-		fmt.Printf("%d - %s \n" , index, item.name)
-	}
-
-	var newList collections.ListType = collections.GenerateList(user{"Alvaro",6,1},user{"Sofia",3,2})
-
-
+func examplesWithList() {
+	//	var newList collections.ListType = collections.GenerateList(user{"Alvaro",6,1},user{"Sofia",3,2})
+	newList := collections.GenerateList(user{"Alvaro", 6, 1}, user{"Sofia", 3, 2})
 	results := newList.Map(mapperLst)
-
-
+	fmt.Println(results.Reverse().Join("(♥)"))
 	fmt.Println(results)
 }
 
-
-
-
-func mapperLst( mapper interface{} , index int) interface{}{
+func mapperLst(mapper interface{}, index int) interface{} {
 	user1Item := mapper.(user)
-	return fmt.Sprintf ("%d -> Name:%s - Age:%d",index, user1Item.name , user1Item.age) 
+	return user1Item.name
 }
