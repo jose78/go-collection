@@ -8,7 +8,7 @@ func GenerateList(items ...interface{}) ListType {
 }
 
 //Foreach is the default
-func (list ListType) Foreach(fn func(interface{}, int))  {
+func (list ListType) Foreach(fn func(interface{}, int)) {
 	for index, item := range list {
 		fn(item, index)
 	}
@@ -44,13 +44,11 @@ func (list ListType) Reverse() ListType {
 	return res
 }
 
-
-
 //FilterAll is the default
 func (list ListType) FilterAll(fn func(interface{}) bool) ListType {
 	result := ListType{}
 	for _, item := range list {
-		if(fn(item)){
+		if fn(item) {
 			result = append(result, fn(item))
 		}
 	}
@@ -59,8 +57,8 @@ func (list ListType) FilterAll(fn func(interface{}) bool) ListType {
 
 //FilterFirst is the default
 func (list ListType) FilterFirst(fn func(interface{}) bool) (interface{}, int) {
-	for index:= 0; index < len(list); index++{
-		if(fn(list[index])){
+	for index := 0; index < len(list); index++ {
+		if fn(list[index]) {
 			return list[index], index
 		}
 	}
@@ -69,15 +67,15 @@ func (list ListType) FilterFirst(fn func(interface{}) bool) (interface{}, int) {
 
 //FilterLast is the default
 func (list ListType) FilterLast(fn func(interface{}) bool) (interface{}, int) {
-	for index:= len(list)- 1; index >= 0 ; index--{
-		if(fn(list[index])){
+	for index := len(list) - 1; index >= 0; index-- {
+		if fn(list[index]) {
 			return list[index], index
 		}
 	}
 	return nil, -1
 }
 
-// Append is the default way to insesrt elements 
+// Append is the default way to insesrt elements
 func (list ListType) Append(item interface{}) ListType {
 	return append(list, item)
 }
