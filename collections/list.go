@@ -14,11 +14,10 @@ func (list ListType) Foreach(fn func(interface{}, int)) {
 	}
 }
 
-//Map is the default
+//Map function iterates through a ListType, converting each element into a new value using the function as the transformer.
 func (list ListType) Map(mapper func(interface{}, int) interface{}) ListType {
 	result := ListType{}
 	for index, item := range list {
-		fmt.Println(item)
 		result = append(result, mapper(item, index))
 	}
 	return result
