@@ -43,7 +43,7 @@ func (list ListType) Reverse() ListType {
 	return res
 }
 
-//FilterAll is the default
+//FilterAll method finds all ocurrences in a collection that matches with the function criteria.
 func (list ListType) FilterAll(fn func(interface{}) bool) ListType {
 	result := ListType{}
 	for _, item := range list {
@@ -54,7 +54,7 @@ func (list ListType) FilterAll(fn func(interface{}) bool) ListType {
 	return result
 }
 
-//FilterFirst is the default
+//FilterFirst method finds the first ocurrence in a collection that matches with the function criteria.
 func (list ListType) FilterFirst(fn func(interface{}) bool) (interface{}, int) {
 	for index := 0; index < len(list); index++ {
 		if fn(list[index]) {
@@ -64,7 +64,7 @@ func (list ListType) FilterFirst(fn func(interface{}) bool) (interface{}, int) {
 	return nil, -1
 }
 
-//FilterLast is the default
+//FilterLast method finds the first ocurrence in a collection that matches with the function criteria.
 func (list ListType) FilterLast(fn func(interface{}) bool) (interface{}, int) {
 	for index := len(list) - 1; index >= 0; index-- {
 		if fn(list[index]) {
