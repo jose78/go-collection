@@ -34,7 +34,7 @@ func (list ListType) Join(separator string) string {
 	return result
 }
 
-// Reverse is the default method
+// Reverse Create a new ListType that is the reverse the elements of the original ListType.
 func (list ListType) Reverse() ListType {
 	var res []interface{}
 	for index := len(list) - 1; index >= 0; index-- {

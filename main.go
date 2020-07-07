@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/jose78/go-collenction-utils/collections"
+	"github.com/jose78/go-collenction/collections"
 )
 
 type user struct {
