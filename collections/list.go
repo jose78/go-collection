@@ -8,9 +8,9 @@ func GenerateList(items ...interface{}) ListType {
 }
 
 //Foreach method performs the given action for each element of the array/slice until all elements have been processed or the action generates an exception.
-func (list ListType) Foreach(fn func(interface{}, int)) {
+func (list ListType) Foreach(action func(interface{}, int)) {
 	for index, item := range list {
-		fn(item, index)
+		action(item, index)
 	}
 }
 
