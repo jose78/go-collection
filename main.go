@@ -2,33 +2,37 @@ package main
 
 import (
 	"fmt"
+	"github.com/jose78/go-collenction/collections"
 )
 
-
-type key interface {}
-type value interface {}
-type colMap map[key]value
-type result interface {} 
-type mapper func(key , value) result 
+type user struct {
+	name string
+	age  int
+	id   int
+}
 
 func main() {
-	mm := make(colMap)
-	mm["2"] = 8	
-	fmt.Println(fmap(mm, mapperd))
-}
-
-func mapperd(k key, v  value) result{
-	return fmt.Sprintf("RESULTADO %s %d" , k , v)
+	examplesWithList()
 }
 
 
-func fmap(collection colMap, mapper mapper) []result{
-	var res []result
-    	for k,v := range collection {
-		res = append(res, mapper(k, v))
-	}
-	return res
+
+
+func examplesWithList() {
+	//	var newList collections.ListType = collections.GenerateList(user{"Alvaro",6,1},user{"Sofia",3,2})
+	newList := collections.GenerateList(user{"Alvaro", 6, 1}, user{"Sofia", 3, 2})
+	results := newList.Map(mapperLst)
+	fmt.Println(results.Reverse().Join("(♥)"))
+	fmt.Println(results)
+
+	listTuples, _ := collections.Zip(results.Reverse(), results)
+	fmt.Println(listTuples.Join("(♥)"))
+
 }
 
+func mapperLst(mapper interface{}, index int) interface{} {
+	user1Item := mapper.(user)
+	return user1Item.name
+}
 
 
