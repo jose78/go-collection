@@ -7,7 +7,7 @@ func GenerateList(items ...interface{}) ListType {
 	return items
 }
 
-//Foreach is the default
+//Foreach method performs the given action for each element of the array/slice until all elements have been processed or the action generates an exception.
 func (list ListType) Foreach(fn func(interface{}, int)) {
 	for index, item := range list {
 		fn(item, index)
