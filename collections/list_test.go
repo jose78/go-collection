@@ -118,12 +118,10 @@ func TestListType_Map(t *testing.T) {
 	}
 }
 
-
 func doSomething(item interface{}, index int)  {
 	fmt.Printf("%d - value:%v", index , item) 
 	
 }
-
 
 func factorListType() ListType{
 	list := GenerateList()
@@ -147,6 +145,42 @@ func TestListType_Foreach(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.list.Foreach(tt.args.fn)
+		})
+	}
+}
+
+func TestListType_Join(t *testing.T) {
+	tests := []struct {
+		name string
+		list ListType
+		separator string 
+		want string
+	}{
+		{"Should retrive the name of each testUser", GenerateList("Alvaro" , "Sofi"), ",",  "Alvaro,Sofi"},		
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.list.Join(tt.separator); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ListType.Join() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestListType_Reverse(t *testing.T) {
+	tests := []struct {
+		name string
+		list ListType
+		want ListType
+	}{
+		{"1º - Should generate a new ListTypewith inverted values", GenerateList("Alvaro" , "Sofi"),   GenerateList("Sofi","Alvaro")},		
+		{"2º - Should generate a new ListTypewith inverted values", GenerateList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}),  GenerateList(testUser{"Sofi", 3} , testUser{"Alvaro", 6})},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.list.Reverse(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ListType.Reverse() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }
