@@ -17,13 +17,40 @@ func (list ListType) Foreach(action func(interface{}, int)) {
 	}
 }
 
+
+func callbackMap(index int, value interface{}, fnInternal func(interface{},int) interface{}) (item interface{}, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in f", r)
+			// find out exactly what the error was and set err
+			switch x := r.(type) {
+			case string:
+				err = errors.New(x)
+			case error:
+				err = x
+			default:
+				err = errors.New("Unknown panic")
+			}
+			fmt.Printf("ERROR: %v",err) 
+		}
+	}()
+	item = fnInternal(value, index)
+	return item, err
+}
+
 //Map function iterates through a ListType, converting each element into a new value using the function as the transformer.
-func (list ListType) Map(mapper func(interface{}, int) interface{}) ListType {
-	result := ListType{}
+func (list ListType) Map(mapper func(interface{}, int) interface{}) (ListType , error){
+	result := GenerateList()
 	for index, item := range list {
-		result = append(result, mapper(item, index))
+		itemMapped, err := callbackMap(index, item , mapper)
+		if err != nil{
+			return nil, err
+		} 
+		
+		result = result.Append(itemMapped)
+		
 	}
-	return result
+	return result, nil
 }
 
 // Join is the default method
