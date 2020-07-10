@@ -65,13 +65,31 @@ func (list ListType) FilterFirst(fn func(interface{}) bool) (interface{}, int) {
 }
 
 //FilterLast method finds the first ocurrence in a collection that matches with the function criteria.
-func (list ListType) FilterLast(fn func(interface{}) bool) (interface{}, int) {
+func (list ListType) FilterLast(fn func(interface{}) (bool)) (interface{}, int, error) {
+	callback := func (index int,value interface{}, fnInternal func(interface{}) (bool)) (flag  bool, err error) {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("Recovered in f", r)
+				// find out exactly what the error was and set err
+				switch x := r.(type) {
+				case string:
+					err = errors.New(x)
+				case error:
+					err = x
+				default:
+					err = errors.New("Unknown panic")
+				}
+			}
+		}()
+		falg = fnInternal(value)
+	}
+	var err error 
 	for index := len(list) - 1; index >= 0; index-- {
-		if fn(list[index]) {
-			return list[index], index
+		if falg,err :=  callback(index, list[index] , fn); err != nil{
+			return list[index], index, nil
 		}
 	}
-	return nil, -1
+	return nil, -1, nil
 }
 
 // Append is the default way to insesrt elements

@@ -35,6 +35,14 @@ func filterOddNumber(item interface{}) bool {
 	return item.(int)%3 == 0
 }
 
+func filterOddNumberWithError(item interface{}) bool  {
+	if item.(int)%3 == 0  {
+		panic( fmt.Errorf("This is a Dummy fail"))
+	}else{
+		return false
+	}
+}
+
 func TestListType_FilterLast(t *testing.T) {
 	type args struct {
 		fn func(interface{}) bool
