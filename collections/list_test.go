@@ -1,9 +1,9 @@
 package collections
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
-	"fmt"
 )
 
 type testUser struct {
@@ -31,69 +31,6 @@ func TestListType_Append(t *testing.T) {
 	}
 }
 
-func filterOddNumber(item interface{}) bool {
-	return item.(int)%3 == 0
-}
-
-func filterOddNumberWithError(item interface{}) bool  {
-	if item.(int)%3 == 0  {
-		panic( fmt.Errorf("This is a Dummy fail"))
-	}else{
-		return false
-	}
-}
-
-func TestListType_FilterLast(t *testing.T) {
-	type args struct {
-		fn func(interface{}) bool
-	}
-	tests := []struct {
-		name  string
-		list  ListType
-		args  args
-		want  interface{}
-		want1 int
-	}{
-		{"Fimd the last Odd", GenerateList(5, 1, 2, 3, 4, 7, 6, 5, 9, 67), args{filterOddNumber}, 9, 8},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := tt.list.FilterLast(tt.args.fn)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ListType.FilterLast() got = %v, want %v", got, tt.want)
-			}
-			if got1 != tt.want1 {
-				t.Errorf("ListType.FilterLast() got1 = %v, want %v", got1, tt.want1)
-			}
-		})
-	}
-}
-
-func TestListType_FilterFirst(t *testing.T) {
-	type args struct {
-		fn func(interface{}) bool
-	}
-	tests := []struct {
-		name  string
-		list  ListType
-		args  args
-		want  interface{}
-		want1 int
-	}{
-		{"Fimd the first Odd", GenerateList(5, 1, 2, 3, 4, 7, 6, 5, 9, 67), args{filterOddNumber}, 3, 3},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := tt.list.FilterFirst(tt.args.fn)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ListType.FilterFirst() got = %v, want %v", got, tt.want)
-			}
-			if got1 != tt.want1 {
-				t.Errorf("ListType.FilterFirst() got1 = %v, want %v", got1, tt.want1)
-			}
-		})
-	}
-}
 
 func mapperInt(item interface{}, index int) interface{} {
 	value := item.(int)
@@ -126,16 +63,16 @@ func TestListType_Map(t *testing.T) {
 	}
 }
 
-func doSomething(item interface{}, index int)  {
-	fmt.Printf("%d - value:%v", index , item) 
-	
+func doSomething(item interface{}, index int) {
+	fmt.Printf("%d - value:%v", index, item)
+
 }
 
-func factorListType() ListType{
+func factorListType() ListType {
 	list := GenerateList()
-	for index:= 1; index <= 1000000; index ++{
+	for index := 1; index <= 1000000; index++ {
 		list.Append(index)
-	} 
+	}
 	return list
 }
 
@@ -148,7 +85,7 @@ func TestListType_Foreach(t *testing.T) {
 		list ListType
 		args args
 	}{
-		{"Should  execute for each item the same operation", factorListType() , args{doSomething}},
+		{"Should  execute for each item the same operation", factorListType(), args{doSomething}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -159,12 +96,12 @@ func TestListType_Foreach(t *testing.T) {
 
 func TestListType_Join(t *testing.T) {
 	tests := []struct {
-		name string
-		list ListType
-		separator string 
-		want string
+		name      string
+		list      ListType
+		separator string
+		want      string
 	}{
-		{"Should retrive the name of each testUser", GenerateList("Alvaro" , "Sofi"), ",",  "Alvaro,Sofi"},		
+		{"Should retrive the name of each testUser", GenerateList("Alvaro", "Sofi"), ",", "Alvaro,Sofi"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -181,13 +118,90 @@ func TestListType_Reverse(t *testing.T) {
 		list ListType
 		want ListType
 	}{
-		{"1º - Should generate a new ListTypewith inverted values", GenerateList("Alvaro" , "Sofi"),   GenerateList("Sofi","Alvaro")},		
-		{"2º - Should generate a new ListTypewith inverted values", GenerateList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}),  GenerateList(testUser{"Sofi", 3} , testUser{"Alvaro", 6})},
+		{"1º - Should generate a new ListTypewith inverted values", GenerateList("Alvaro", "Sofi"), GenerateList("Sofi", "Alvaro")},
+		{"2º - Should generate a new ListTypewith inverted values", GenerateList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}), GenerateList(testUser{"Sofi", 3}, testUser{"Alvaro", 6})},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.list.Reverse(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ListType.Reverse() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func filterOddNumber(item interface{}) bool {
+	return item.(int)%3 == 0
+}
+
+func filterOddNumberWithError(item interface{}) bool {
+	if item.(int)%3 == 0 {
+		panic(fmt.Errorf("This is a Dummy fail -> %v", item))
+	} else {
+		return false
+	}
+}
+
+func TestListType_FilterLast(t *testing.T) {
+	type args struct {
+		fn func(interface{}) bool
+	}
+	tests := []struct {
+		name  string
+		list  ListType
+		args  args
+		want  interface{}
+		want1 int
+		want2 string
+	}{
+		{"Fimd the last Odd", GenerateList(5, 1, 2, 3, 4, 7, 6, 5, 9, 67), args{filterOddNumber}, 9, 8, ""},
+		{"It should manage the fail", GenerateList(5, 1, 2, 3, 4, 7, 6, 5, 9, 67), args{filterOddNumberWithError}, nil, 8, "This is a Dummy fail -> 9"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got1, got2 := tt.list.FilterLast(tt.args.fn)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ListType.FilterLast() got = %v, want %v", got, tt.want)
+			}
+			if got1 != tt.want1 {
+				t.Errorf("ListType.FilterLast() got1 = %v, want %v", got1, tt.want1)
+			}
+			if got2 != nil && got2.Error() != tt.want2 {
+				t.Errorf("ListType.FilterLast() got2 = %v(%T), want %v(%T)", got2, got2, tt.want2, tt.want2)
+			}
+		})
+	}
+}
+
+
+
+
+func TestListType_FilterFirst(t *testing.T) {
+	type args struct {
+		fn func(interface{}) bool
+	}
+	tests := []struct {
+		name  string
+		list  ListType
+		args  args
+		want  interface{}
+		want1 int
+		want2 string
+	}{
+		{"Fimd the first Odd", GenerateList(5, 1, 2, 3, 4, 7, 6, 5, 9, 67), args{filterOddNumber}, 3, 3, ""},
+		{"It should manage the fail", GenerateList(5, 1, 2, 3, 4, 7, 6, 5, 9, 67), args{filterOddNumberWithError}, nil, 3, "This is a Dummy fail -> 3"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got1, got2 := tt.list.FilterFirst(tt.args.fn)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ListType.FilterLast() got = %v, want %v", got, tt.want)
+			}
+			if got1 != tt.want1 {
+				t.Errorf("ListType.FilterLast() got1 = %v, want %v", got1, tt.want1)
+			}
+			if got2 != nil && got2.Error() != tt.want2 {
+				t.Errorf("ListType.FilterLast() got2 = %v(%T), want %v(%T)", got2, got2, tt.want2, tt.want2)
 			}
 		})
 	}

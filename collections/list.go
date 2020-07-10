@@ -1,6 +1,9 @@
 package collections
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 // GenerateList is the default item
 func GenerateList(items ...interface{}) ListType {
@@ -54,38 +57,46 @@ func (list ListType) FilterAll(fn func(interface{}) bool) ListType {
 	return result
 }
 
-//FilterFirst method finds the first ocurrence in a collection that matches with the function criteria.
-func (list ListType) FilterFirst(fn func(interface{}) bool) (interface{}, int) {
+//FilterFirst method finds the first ocurrence in a collection that matches with the function criteria. If any iteration fails, it wil return "nil, INDEX_OF_ITERATION, error" ELSE if FIND OK ITEM_SELECTED, INDEX_OF_ITEM , nil ELSE nil, -1, nil
+func (list ListType) FilterFirst(fn func(interface{}) bool) (interface{}, int, error) {
 	for index := 0; index < len(list); index++ {
-		if fn(list[index]) {
-			return list[index], index
+		if flag, err := callbackFilter(index, list[index], fn); err != nil {
+			return nil, index, err
+		} else if flag{
+			return list[index], index, nil
 		}
 	}
-	return nil, -1
+	return nil, -1, nil
 }
 
-//FilterLast method finds the first ocurrence in a collection that matches with the function criteria.
-func (list ListType) FilterLast(fn func(interface{}) (bool)) (interface{}, int, error) {
-	callback := func (index int,value interface{}, fnInternal func(interface{}) (bool)) (flag  bool, err error) {
-		defer func() {
-			if r := recover(); r != nil {
-				fmt.Println("Recovered in f", r)
-				// find out exactly what the error was and set err
-				switch x := r.(type) {
-				case string:
-					err = errors.New(x)
-				case error:
-					err = x
-				default:
-					err = errors.New("Unknown panic")
-				}
+
+func callbackFilter(index int, value interface{}, fnInternal func(interface{}) bool) (flag bool, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in f", r)
+			// find out exactly what the error was and set err
+			switch x := r.(type) {
+			case string:
+				err = errors.New(x)
+			case error:
+				err = x
+			default:
+				err = errors.New("Unknown panic")
 			}
-		}()
-		falg = fnInternal(value)
-	}
-	var err error 
+			fmt.Printf("ERROR: %v",err) 
+		}
+	}()
+	flag = fnInternal(value)
+	return flag, err
+}
+
+
+//FilterLast method finds the first ocurrence in a collection that matches with the function criteria. If any iteration fails, it wil return "nil, INDEX_OF_ITERATION, error" ELSE if FIND OK ITEM_SELECTED, INDEX_OF_ITEM , nil ELSE nil, -1, nil
+func (list ListType) FilterLast(fn func(interface{}) bool) (interface{}, int, error) {
 	for index := len(list) - 1; index >= 0; index-- {
-		if falg,err :=  callback(index, list[index] , fn); err != nil{
+		if flag, err := callbackFilter(index, list[index], fn); err != nil {
+			return nil, index, err
+		} else if flag{
 			return list[index], index, nil
 		}
 	}
