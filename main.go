@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/jose78/go-collenction/collections"
+	"github.com/jose78/go-collection/collections"
 )
 
 type user struct {
@@ -19,11 +19,11 @@ func main() {
 func examplesWithList() {
 	//	var newList collections.ListType = collections.GenerateList(user{"Alvaro",6,1},user{"Sofia",3,2})
 	newList := collections.GenerateList(user{"Alvaro", 6, 1}, user{"Sofia", 3, 2})
-	results := newList.Map(mapperLst)
+	results,_ := newList.Map(mapperLst)
 	fmt.Println(results.Reverse().Join("(♥)"))
 	fmt.Println(results)
 
-	resultFiltered, index  := newList.FilterLast(filterUserByAge)
+	resultFiltered, index ,_ := newList.FilterLast(filterUserByAge)
 	fmt.Printf("result of filter %v with index %d\n", resultFiltered,index)
 
 	listTuples, _ := collections.Zip(results.Reverse(), results)

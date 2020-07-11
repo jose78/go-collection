@@ -6,7 +6,6 @@ require (
 	github.com/alecthomas/gometalinter v3.0.0+incompatible // indirect
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
-	github.com/jose78/go-collenction v0.0.0-20200707220153-c99fb1a19134
 	github.com/kisielk/gotool v1.0.0 // indirect
 	github.com/mdempsky/gocode v0.0.0-20200405233807-4acdcbdea79d // indirect
 	github.com/nicksnyder/go-i18n v1.10.1 // indirect
