@@ -14,14 +14,14 @@ func GenerateList(items ...interface{}) ListType {
 func (list ListType) Foreach(action func(interface{}, int)) error {
 	for index, item := range list {
 		fmt.Printf("%+v\n", index)
-		if err := callbackForeach(index , item, action); err != nil{
+		if err := callbackForeach(index, item, action); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func callbackForeach(index int, item interface{}, fnInternal func(interface{},int)) (err error) {
+func callbackForeach(index int, item interface{}, fnInternal func(interface{}, int)) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("Recovered in f", r)
@@ -34,15 +34,14 @@ func callbackForeach(index int, item interface{}, fnInternal func(interface{},in
 			default:
 				err = errors.New("Unknown panic")
 			}
-			fmt.Printf("ERROR: %v",err) 
+			fmt.Printf("ERROR: %v", err)
 		}
 	}()
 	fnInternal(item, index)
 	return err
 }
 
-
-func callbackMap(index int, value interface{}, fnInternal func(interface{},int) interface{}) (item interface{}, err error) {
+func callbackMap(index int, value interface{}, fnInternal func(interface{}, int) interface{}) (item interface{}, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("Recovered in f", r)
@@ -55,7 +54,7 @@ func callbackMap(index int, value interface{}, fnInternal func(interface{},int) 
 			default:
 				err = errors.New("Unknown panic")
 			}
-			fmt.Printf("ERROR: %v",err) 
+			fmt.Printf("ERROR: %v", err)
 		}
 	}()
 	item = fnInternal(value, index)
@@ -63,16 +62,16 @@ func callbackMap(index int, value interface{}, fnInternal func(interface{},int) 
 }
 
 //Map function iterates through a ListType, converting each element into a new value using the function as the transformer.
-func (list ListType) Map(mapper func(interface{}, int) interface{}) (ListType , error){
+func (list ListType) Map(mapper func(interface{}, int) interface{}) (ListType, error) {
 	result := GenerateList()
 	for index, item := range list {
-		itemMapped, err := callbackMap(index, item , mapper)
-		if err != nil{
+		itemMapped, err := callbackMap(index, item, mapper)
+		if err != nil {
 			return nil, err
-		} 
-		
-		result = result.Append(itemMapped)
-		
+		}
+
+		result = append(result, itemMapped)
+
 	}
 	return result, nil
 }
@@ -113,13 +112,12 @@ func (list ListType) FilterFirst(fn func(interface{}) bool) (interface{}, int, e
 	for index := 0; index < len(list); index++ {
 		if flag, err := callbackFilter(index, list[index], fn); err != nil {
 			return nil, index, err
-		} else if flag{
+		} else if flag {
 			return list[index], index, nil
 		}
 	}
 	return nil, -1, nil
 }
-
 
 func callbackFilter(index int, value interface{}, fnInternal func(interface{}) bool) (flag bool, err error) {
 	defer func() {
@@ -134,27 +132,21 @@ func callbackFilter(index int, value interface{}, fnInternal func(interface{}) b
 			default:
 				err = errors.New("Unknown panic")
 			}
-			fmt.Printf("ERROR: %v",err) 
+			fmt.Printf("ERROR: %v", err)
 		}
 	}()
 	flag = fnInternal(value)
 	return flag, err
 }
 
-
 //FilterLast method finds the first ocurrence in a collection that matches with the function criteria. If any iteration fails, it wil return "nil, INDEX_OF_ITERATION, error" ELSE if FIND OK ITEM_SELECTED, INDEX_OF_ITEM , nil ELSE nil, -1, nil
 func (list ListType) FilterLast(fn func(interface{}) bool) (interface{}, int, error) {
 	for index := len(list) - 1; index >= 0; index-- {
 		if flag, err := callbackFilter(index, list[index], fn); err != nil {
 			return nil, index, err
-		} else if flag{
+		} else if flag {
 			return list[index], index, nil
 		}
 	}
 	return nil, -1, nil
-}
-
-// Append is the default way to insesrt elements
-func (list ListType) Append(item interface{}) ListType {
-	return append(list, item)
 }

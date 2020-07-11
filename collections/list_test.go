@@ -11,26 +11,6 @@ type testUser struct {
 	age  int
 }
 
-func TestListType_Append(t *testing.T) {
-	tests := []struct {
-		name string
-		list ListType
-		args interface{}
-		want ListType
-	}{
-		{"Append element to list", GenerateList(1, 2), 3, GenerateList(1, 2, 3)},
-		{"Append element to empty list", GenerateList(), 3, GenerateList(3)},
-		{"Append duplicate element to list", GenerateList(3), 3, GenerateList(3, 3)},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.list.Append(tt.args); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ListType.Append() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func mapperInt(item interface{}, index int) interface{} {
 	value := item.(int)
 	return value * 10
@@ -190,7 +170,6 @@ func factorListType() ListType {
 	}
 	return list
 }
-
 
 func doSomethingWithPanic(item interface{}, index int) {
 	if index%3 != 0 {

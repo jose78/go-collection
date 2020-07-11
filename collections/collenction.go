@@ -34,7 +34,7 @@ func Zip(a []interface{} , b []interface{}) (ListType , error){
 	}
 	list:= GenerateList()
 	for index:= 0; index < sizeA; index++{
-		list= list.Append(Tuple{a[index], b[index]})
+		list=  append(list, Tuple{a[index], b[index]})
 	}
 	return list, nil
 }
