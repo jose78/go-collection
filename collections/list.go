@@ -11,10 +11,34 @@ func GenerateList(items ...interface{}) ListType {
 }
 
 //Foreach method performs the given action for each element of the array/slice until all elements have been processed or the action generates an exception.
-func (list ListType) Foreach(action func(interface{}, int)) {
+func (list ListType) Foreach(action func(interface{}, int)) error {
 	for index, item := range list {
-		action(item, index)
+		fmt.Printf("%+v\n", index)
+		if err := callbackForeach(index , item, action); err != nil{
+			return err
+		}
 	}
+	return nil
+}
+
+func callbackForeach(index int, item interface{}, fnInternal func(interface{},int)) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in f", r)
+			// find out exactly what the error was and set err
+			switch x := r.(type) {
+			case string:
+				err = errors.New(x)
+			case error:
+				err = x
+			default:
+				err = errors.New("Unknown panic")
+			}
+			fmt.Printf("ERROR: %v",err) 
+		}
+	}()
+	fnInternal(item, index)
+	return err
 }
 
 

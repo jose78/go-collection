@@ -31,7 +31,6 @@ func TestListType_Append(t *testing.T) {
 	}
 }
 
-
 func mapperInt(item interface{}, index int) interface{} {
 	value := item.(int)
 	return value * 10
@@ -51,56 +50,25 @@ func TestListType_Map(t *testing.T) {
 		mapper func(interface{}, int) interface{}
 	}
 	tests := []struct {
-		name string
-		list ListType
-		args args
-		want ListType
-		want1  string
+		name  string
+		list  ListType
+		args  args
+		want  ListType
+		want1 string
 	}{
 		{"Should retrive the name of each testUser", GenerateList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}), args{mapperUser}, GenerateList("Alvaro", "Sofi"), ""},
-		{"Should retrive a list with each number *10", GenerateList(3, 4, 5, 6), args{mapperInt}, GenerateList(30, 40, 50, 60) , ""},
+		{"Should retrive a list with each number *10", GenerateList(3, 4, 5, 6), args{mapperInt}, GenerateList(30, 40, 50, 60), ""},
 		{"Should fail", GenerateList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}), args{mapperUserWithFails}, nil, "This is a Dummy fail"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, got1 := tt.list.Map(tt.args.mapper)
-			if  !reflect.DeepEqual(got, tt.want) {
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ListType.Map() = %v, want %v", got, tt.want)
 			}
-			if  got1 !=  nil && got1.Error() ==  tt.want1 {
+			if got1 != nil && got1.Error() == tt.want1 {
 				t.Errorf("ListType.Map() = %v, want %v", got1, tt.want1)
 			}
-		})
-	}
-}
-
-func doSomething(item interface{}, index int) {
-	fmt.Printf("%d - value:%v", index, item)
-
-}
-
-func factorListType() ListType {
-	list := GenerateList()
-	for index := 1; index <= 1000000; index++ {
-		list.Append(index)
-	}
-	return list
-}
-
-func TestListType_Foreach(t *testing.T) {
-	type args struct {
-		fn func(interface{}, int)
-	}
-	tests := []struct {
-		name string
-		list ListType
-		args args
-	}{
-		{"Should  execute for each item the same operation", factorListType(), args{doSomething}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.list.Foreach(tt.args.fn)
 		})
 	}
 }
@@ -184,9 +152,6 @@ func TestListType_FilterLast(t *testing.T) {
 	}
 }
 
-
-
-
 func TestListType_FilterFirst(t *testing.T) {
 	type args struct {
 		fn func(interface{}) bool
@@ -213,6 +178,51 @@ func TestListType_FilterFirst(t *testing.T) {
 			}
 			if got2 != nil && got2.Error() != tt.want2 {
 				t.Errorf("ListType.FilterLast() got2 = %v(%T), want %v(%T)", got2, got2, tt.want2, tt.want2)
+			}
+		})
+	}
+}
+
+func factorListType() ListType {
+	list := GenerateList()
+	for index := 1; index <= 100; index++ {
+		list = append(list, index)
+	}
+	return list
+}
+
+
+func doSomethingWithPanic(item interface{}, index int) {
+	if index%3 != 0 {
+		panic(fmt.Errorf("This is a Dummy fail -> %v", item))
+	}
+
+	fmt.Printf("%d - value:%v", index, item)
+
+}
+
+func doSomething(item interface{}, index int) {
+	fmt.Printf("%d - value:%v", index, item)
+}
+
+func TestListType_Foreach(t *testing.T) {
+	type args struct {
+		action func(interface{}, int)
+	}
+	tests := []struct {
+		name    string
+		list    ListType
+		args    args
+		wantErr bool
+	}{
+		{"Should  execute for each item the same operation", factorListType(), args{doSomething}, false},
+		{"Should  be failed ", factorListType(), args{doSomethingWithPanic}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.list.Foreach(tt.args.action)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ListType.Foreach() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
