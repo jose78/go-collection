@@ -19,19 +19,21 @@ func main() {
 func examplesWithList() {
 	//	var newList collections.ListType = collections.GenerateList(user{"Alvaro",6,1},user{"Sofia",3,2})
 	newList := collections.GenerateList(user{"Alvaro", 6, 1}, user{"Sofia", 3, 2})
-	results,_ := newList.Map(mapperLst)
+	results, err := newList.Map(mapperLst)
+	if err != nil {
+		fmt.Printf("Error %v", err)
+	}
 	fmt.Println(results.Reverse().Join("(♥)"))
 	fmt.Println(results)
 
-	resultFiltered, index ,_ := newList.FilterLast(filterUserByAge)
-	fmt.Printf("result of filter %v with index %d\n", resultFiltered,index)
+	resultFiltered, index, _ := newList.FilterLast(filterUserByAge)
+	fmt.Printf("result of filter %v with index %d\n", resultFiltered, index)
 
 	listTuples, _ := collections.Zip(results.Reverse(), results)
 	fmt.Println(listTuples.Join("(♥)"))
 }
 
-
-func filterUserByAge(value interface{}) bool{
+func filterUserByAge(value interface{}) bool {
 	user := value.(user)
 	return user.age > 3
 }

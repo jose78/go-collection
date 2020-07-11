@@ -9,7 +9,6 @@ type Action func(interface{}, int)
 // Filter is the default Filter funtion
 type Filter func(interface{}) bool 
 
-
 // ListType is the default List
 type ListType []interface{}
 
