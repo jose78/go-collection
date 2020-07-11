@@ -75,7 +75,7 @@ func TestMapType_Foreach(t *testing.T) {
 
 func extracNames(key, value interface{}, index int) interface{} {
 	user := value.(testUser)
-	return fmt.Sprintf("%s" ,user.name)
+	return fmt.Sprintf("%s", user.name)
 }
 
 func TestMapType_Map(t *testing.T) {
@@ -88,7 +88,7 @@ func TestMapType_Map(t *testing.T) {
 		args    args
 		want    ListType
 	}{
-		{"Should return a list with the nams of each value" , generateMapTest(), args{extracNames}, GenerateList("Alvaro","Sofia","empty")},
+		{"Should return a list with the nams of each value", generateMapTest(), args{extracNames}, GenerateList("Alvaro", "Sofia", "empty")},
 	}
 	for _, tt := range tests {
 		fmt.Println(tt.want)
@@ -99,4 +99,39 @@ func TestMapType_Map(t *testing.T) {
 		})
 	}
 }
+
+func TestMapType_ListKeys(t *testing.T) {
+	tests := []struct {
+		name    string
+		mapType MapType
+		want    ListType
+	}{
+		{"Should return a list with the keys of the map", generateMapTest(), GenerateList(1, 2, 3)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.mapType.ListKeys(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("MapType.ListKeys() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMapType_ListValues(t *testing.T) {
+	tests := []struct {
+		name    string
+		mapType MapType
+		want    ListType
+	}{
+		{"Should return a list with the keys of the map", generateMapTest(),  GenerateList(testUser{"Alvaro", 6},testUser{"Sofia", 3},testUser{"empty", 0})},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.mapType.ListValues(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("MapType.ListValues() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 

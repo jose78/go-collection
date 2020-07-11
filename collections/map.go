@@ -59,3 +59,23 @@ func (mapType MapType) FilterAll(fn func(interface{}, interface{}) bool) MapType
 	}
 	return result
 }
+
+//  ListKeys obtains a ListType of the values in this Map.
+func (mapType MapType) ListValues() ListType{
+	list := ListType{}
+	for _,  value := range mapType{
+		list = append (list , value)
+	}
+	return list
+}
+
+//  ListKeys obtains a ListType of the keys in this Map.
+func (mapType MapType) ListKeys() ListType{
+	list := ListType{}
+	for key, _ := range mapType{
+		list = append (list , key)
+	}
+	return list
+}
+ 
+
