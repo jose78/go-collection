@@ -23,11 +23,17 @@ func examplesWithList() {
 	fmt.Println(results.Reverse().Join("(♥)"))
 	fmt.Println(results)
 
-	
+	resultFiltered, index  := newList.FilterLast(filterUserByAge)
+	fmt.Printf("result of filter %v with index %d\n", resultFiltered,index)
 
 	listTuples, _ := collections.Zip(results.Reverse(), results)
 	fmt.Println(listTuples.Join("(♥)"))
+}
 
+
+func filterUserByAge(value interface{}) bool{
+	user := value.(user)
+	return user.age > 3
 }
 
 func mapperLst(mapper interface{}, index int) interface{} {
