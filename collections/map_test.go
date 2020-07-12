@@ -73,32 +73,6 @@ func TestMapType_Foreach(t *testing.T) {
 	}
 }
 
-func extracNames(key, value interface{}, index int) interface{} {
-	user := value.(testUser)
-	return fmt.Sprintf("%s", user.name)
-}
-
-func TestMapType_Map(t *testing.T) {
-	type args struct {
-		fn func(interface{}, interface{}, int) interface{}
-	}
-	tests := []struct {
-		name    string
-		mapType MapType
-		args    args
-		want    ListType
-	}{
-		{"Should return a list with the nams of each value", generateMapTest(), args{extracNames}, GenerateList("Alvaro", "Sofia", "empty")},
-	}
-	for _, tt := range tests {
-		fmt.Println(tt.want)
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.mapType.Map(tt.args.fn); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("MapType.Map() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
 
 func TestMapType_ListKeys(t *testing.T) {
 	tests := []struct {
@@ -123,7 +97,7 @@ func TestMapType_ListValues(t *testing.T) {
 		mapType MapType
 		want    ListType
 	}{
-		{"Should return a list with the keys of the map", generateMapTest(),  GenerateList(testUser{"Alvaro", 6},testUser{"Sofia", 3},testUser{"empty", 0})},
+		{"Should return a list with the keys of the map", generateMapTest(), GenerateList(testUser{"Alvaro", 6}, testUser{"Sofia", 3}, testUser{"empty", 0})},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -135,3 +109,45 @@ func TestMapType_ListValues(t *testing.T) {
 }
 
 
+
+func extracNames(key, value interface{}, index int) interface{} {
+	user := value.(testUser)
+	return fmt.Sprintf("%s", user.name)
+}
+
+
+func extracNamesWithError(key, value interface{}, index int) interface{} {
+	user := value.(testUser)
+	if user.name == "empty"{
+		panic("This is a dummy error")
+	}
+	return fmt.Sprintf("%s", user.name)
+}
+
+func TestMapType_Map(t *testing.T) {
+	type args struct {
+		fn MapperMapType
+	}
+	tests := []struct {
+		name    string
+		mapType MapType
+		args    args
+		want    ListType
+		wantErr bool
+	}{
+		{"Should return a list with the nams of each value", generateMapTest(), args{extracNames}, GenerateList("Alvaro", "Sofia", "empty"), false},
+		{"Should fail ", generateMapTest(), args{extracNamesWithError}, nil , true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.mapType.Map(tt.args.fn)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("MapType.Map() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("MapType.Map() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
