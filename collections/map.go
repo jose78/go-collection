@@ -33,13 +33,39 @@ func GenerateMapFromZip(keys, values []interface{}) MapType {
 	return GenerateMapFromTuples(tuples)
 }
 
+// ForeachMapType is the default
+type ForeachMapType func(interface{}, interface{}, int)
+
+func callbackMapTypeForeach(index int, key, value interface{}, fnInternal ForeachMapType) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+
+			// find out exactly what the error was and set err
+			switch x := r.(type) {
+			case string:
+				err = errors.New(x)
+			case error:
+				err = x
+			default:
+				err = errors.New("Unknown panic")
+			}
+		}
+	}()
+	fnInternal(key, value, index)
+	return err
+}
+
 //Foreach is the default
-func (mapType MapType) Foreach(fn func(interface{}, interface{}, int)) {
+func (mapType MapType) Foreach(fn ForeachMapType) error {
 	index := 0
+
 	for key, value := range mapType {
-		fn(key, value, index)
+		if err := callbackMapTypeForeach(index, key, value, fn); err != nil {
+			return err
+		}
 		index++
 	}
+	return nil
 }
 
 func callbackMapTypeMap(index int, key, value interface{}, fnInternal MapperMapType) (item interface{}, err error) {
@@ -61,22 +87,21 @@ func callbackMapTypeMap(index int, key, value interface{}, fnInternal MapperMapT
 	return item, err
 }
 
-
 // MapperMapType define the function to be used in Map function
 type MapperMapType func(interface{}, interface{}, int) interface{}
 
 //Map is the default
-func (mapType MapType) Map(fn MapperMapType) (ListType , error){
+func (mapType MapType) Map(fn MapperMapType) (ListType, error) {
 	result := ListType{}
 	index := 0
 	for key, value := range mapType {
-		if item, err := callbackMapTypeMap(index, key, value, fn); err != nil{
+		if item, err := callbackMapTypeMap(index, key, value, fn); err != nil {
 			return nil, err
-		}else{
+		} else {
 			result = append(result, item)
 		}
 		index++
-	}	
+	}
 	return result, nil
 }
 
@@ -103,7 +128,7 @@ func (mapType MapType) ListValues() ListType {
 //ListKeys obtains a ListType of the keys in this Map.
 func (mapType MapType) ListKeys() ListType {
 	list := ListType{}
-	for key, _ := range mapType {
+	for key := range mapType {
 		list = append(list, key)
 	}
 	return list

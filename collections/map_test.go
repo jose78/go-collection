@@ -51,28 +51,6 @@ func TestMapType_FilterAll(t *testing.T) {
 	}
 }
 
-func printEachItem(key, value interface{}, index int) {
-	fmt.Printf("%d .- key: %v - value: %v", index, key, value)
-}
-
-func TestMapType_Foreach(t *testing.T) {
-	type args struct {
-		fn func(interface{}, interface{}, int)
-	}
-	tests := []struct {
-		name    string
-		mapType MapType
-		args    args
-	}{
-		{"Should print each value of the map", generateMapTest(), args{printEachItem}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.mapType.Foreach(tt.args.fn)
-		})
-	}
-}
-
 
 func TestMapType_ListKeys(t *testing.T) {
 	tests := []struct {
@@ -97,7 +75,7 @@ func TestMapType_ListValues(t *testing.T) {
 		mapType MapType
 		want    ListType
 	}{
-		{"Should return a list with the keys of the map", generateMapTest(), GenerateList(testUser{"Alvaro", 6}, testUser{"Sofia", 3}, testUser{"empty", 0})},
+		{"Should return a list with the values of the map", generateMapTest(), GenerateList(testUser{"Alvaro", 6}, testUser{"Sofia", 3}, testUser{"empty", 0})},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -148,6 +126,37 @@ func TestMapType_Map(t *testing.T) {
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("MapType.Map() = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+
+
+
+
+func printEachItem(key, value interface{}, index int) {
+	fmt.Printf("%d .- key: %v - value: %v", index, key, value)
+}
+
+func printEachItemWithError(key, value interface{}, index int) {
+	panic(fmt.Sprintf("ERROR %v - %v", key, value))
+}
+
+func TestMapType_Foreach(t *testing.T) {
+	type args struct {
+		fn func(interface{}, interface{}, int)
+	}
+	tests := []struct {
+		name    string
+		mapType MapType
+		args    args
+		wantErr bool
+	}{
+		{"Should print each value of the map", generateMapTest(), args{printEachItem}, false},
+		{"Should fail", generateMapTest(), args{printEachItemWithError}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mapType.Foreach(tt.args.fn)
 		})
 	}
 }

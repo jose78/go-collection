@@ -11,23 +11,23 @@ type testUser struct {
 	age  int
 }
 
-func mapperInt(item interface{}, index int) interface{} {
+var mapperInt FnMapperList =  func (item interface{}, index int) interface{} {
 	value := item.(int)
 	return value * 10
 }
 
-func mapperUser(item interface{}, index int) interface{} {
+var mapperUser FnMapperList =  func (item interface{}, index int) interface{} {
 	user := item.(testUser)
 	return user.name
 }
 
-func mapperUserWithFails(item interface{}, index int) interface{} {
+var mapperUserWithFails FnMapperList = func (item interface{}, index int) interface{} {
 	panic(fmt.Errorf("This is a Dummy fail -> %v", item))
 }
 
 func TestListType_Map(t *testing.T) {
 	type args struct {
-		mapper func(interface{}, int) interface{}
+		mapper FnMapperList
 	}
 	tests := []struct {
 		name  string
@@ -103,7 +103,7 @@ func filterOddNumberWithError(item interface{}) bool {
 
 func TestListType_FilterLast(t *testing.T) {
 	type args struct {
-		fn func(interface{}) bool
+		fn FnFilter
 	}
 	tests := []struct {
 		name  string
@@ -134,7 +134,7 @@ func TestListType_FilterLast(t *testing.T) {
 
 func TestListType_FilterFirst(t *testing.T) {
 	type args struct {
-		fn func(interface{}) bool
+		fn FnFilter
 	}
 	tests := []struct {
 		name  string
