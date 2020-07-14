@@ -5,12 +5,9 @@ import (
 	"fmt"
 )
 
-
-
 //Foreach method performs the given action for each element of the array/slice until all elements have been processed or the action generates an exception.
 func (list ListType) Foreach(action FnForeachList) error {
 	for index, item := range list {
-		fmt.Printf("%+v\n", index)
 		if err := callbackForeach(index, item, action); err != nil {
 			return err
 		}
@@ -73,7 +70,7 @@ func (list ListType) Map(mapper FnMapperList) (ListType, error) {
 	return result, nil
 }
 
-// JoinAsString concatenates all elements as string .
+// JoinAsString concatenates all elements as string.
 func (list ListType) JoinAsString(separator string) string {
 	var result = ""
 	var newSeparator = ""

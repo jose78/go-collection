@@ -33,12 +33,14 @@ func examplesWithList() {
 	fmt.Println(listTuples.JoinAsString("(♥)"))
 }
 
+
+
 func filterUserByAge(value interface{}) bool {
 	user := value.(user)
 	return user.age > 3
 }
 
-func mapperLst(mapper interface{}, index int) interface{} {
+var mapperLst collections.FnMapperList =  func (mapper interface{}, index int) interface{} {
 	user1Item := mapper.(user)
 	return user1Item.name
 }
