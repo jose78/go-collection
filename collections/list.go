@@ -91,7 +91,7 @@ func (list ListType) Reverse() ListType {
 }
 
 //FilterAll method finds all ocurrences in a collection that matches with the function criteria.
-func (list ListType) FilterAll(fn FnFilterListType) ListType {
+func (list ListType) FilterAll(fn FnFilterList) ListType {
 	result := ListType{}
 	for _, item := range list {
 		if fn(item) {
@@ -102,7 +102,7 @@ func (list ListType) FilterAll(fn FnFilterListType) ListType {
 }
 
 //FilterFirst method finds the first ocurrence in a collection that matches with the function criteria. If any iteration fails, it wil return "nil, INDEX_OF_ITERATION, error" ELSE if FIND OK ITEM_SELECTED, INDEX_OF_ITEM , nil ELSE nil, -1, nil
-func (list ListType) FilterFirst(fn FnFilterListType) (interface{}, int, error) {
+func (list ListType) FilterFirst(fn FnFilterList) (interface{}, int, error) {
 	for index := 0; index < len(list); index++ {
 		if flag, err := callbackFilter(index, list[index], fn); err != nil {
 			return nil, index, err
@@ -113,7 +113,7 @@ func (list ListType) FilterFirst(fn FnFilterListType) (interface{}, int, error) 
 	return nil, -1, nil
 }
 
-func callbackFilter(index int, value interface{}, fnInternal FnFilterListType) (flag bool, err error) {
+func callbackFilter(index int, value interface{}, fnInternal FnFilterList) (flag bool, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("Recovered in f", r)
@@ -134,7 +134,7 @@ func callbackFilter(index int, value interface{}, fnInternal FnFilterListType) (
 }
 
 //FilterLast method finds the first ocurrence in a collection that matches with the function criteria. If any iteration fails, it wil return "nil, INDEX_OF_ITERATION, error" ELSE if FIND OK ITEM_SELECTED, INDEX_OF_ITEM , nil ELSE nil, -1, nil
-func (list ListType) FilterLast(fn FnFilterListType) (interface{}, int, error) {
+func (list ListType) FilterLast(fn FnFilterList) (interface{}, int, error) {
 	for index := len(list) - 1; index >= 0; index-- {
 		if flag, err := callbackFilter(index, list[index], fn); err != nil {
 			return nil, index, err

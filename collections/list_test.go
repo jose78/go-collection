@@ -103,7 +103,7 @@ func filterOddNumberWithError(item interface{}) bool {
 
 func TestListType_FilterLast(t *testing.T) {
 	type args struct {
-		fn FnFilterListType
+		fn FnFilterList
 	}
 	tests := []struct {
 		name  string
@@ -134,7 +134,7 @@ func TestListType_FilterLast(t *testing.T) {
 
 func TestListType_FilterFirst(t *testing.T) {
 	type args struct {
-		fn FnFilterListType
+		fn FnFilterList
 	}
 	tests := []struct {
 		name  string

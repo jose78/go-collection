@@ -8,8 +8,8 @@ type FnMapperList func(interface{}, int) interface{}
 // FnMapperMap define how you should implement a correct mapper for  MapType
 type FnMapperMap func(interface{}, interface{}, int) interface{}
 
-// FnFilterListType this type define the struture the fucntion to implement if you want to filter the List
-type FnFilterListType func(interface{}) bool
+// FnFilterList this type define the struture the fucntion to implement if you want to filter the List
+type FnFilterList func(interface{}) bool
 
 // FnForeachList define the function to call the foreach method of the ListType
 type FnForeachList func(interface{}, int)
