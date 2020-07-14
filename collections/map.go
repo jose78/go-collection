@@ -48,7 +48,7 @@ func callbackMapTypeForeach(index int, key, value interface{}, fnInternal FnFore
 	return err
 }
 
-//Foreach is the default
+//Foreach method performs the given action for each element of the map  until all elements have been processed or the action generates an exception.
 func (mapType MapType) Foreach(fn FnForeachMap) error {
 	index := 0
 
@@ -81,7 +81,7 @@ func callbackMapTypeMap(index int, key, value interface{}, fnInternal FnMapperMa
 }
 
 
-//Map is the default
+//Map function iterates through a ListType, converting each element into a new value using the function as the transformer.
 func (mapType MapType) Map(fn FnMapperMap) (ListType, error) {
 	result := ListType{}
 	index := 0
@@ -96,7 +96,7 @@ func (mapType MapType) Map(fn FnMapperMap) (ListType, error) {
 	return result, nil
 }
 
-//FilterAll is the default
+//FilterAll method finds all ocurrences in a collection that matches with the function criteria.
 func (mapType MapType) FilterAll(fn func(interface{}, interface{}) bool) MapType {
 	result := MapType{}
 	for key, value := range mapType {
