@@ -53,7 +53,7 @@ func TestListType_Map(t *testing.T) {
 	}
 }
 
-func TestListType_Join(t *testing.T) {
+func TestListType_JoinAsString(t *testing.T) {
 	tests := []struct {
 		name      string
 		list      ListType
@@ -64,8 +64,8 @@ func TestListType_Join(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.list.Join(tt.separator); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ListType.Join() = %v, want %v", got, tt.want)
+			if got := tt.list.JoinAsString(tt.separator); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ListType.JoinAsString() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -103,7 +103,7 @@ func filterOddNumberWithError(item interface{}) bool {
 
 func TestListType_FilterLast(t *testing.T) {
 	type args struct {
-		fn FnFilter
+		fn FnFilterListType
 	}
 	tests := []struct {
 		name  string
@@ -134,7 +134,7 @@ func TestListType_FilterLast(t *testing.T) {
 
 func TestListType_FilterFirst(t *testing.T) {
 	type args struct {
-		fn FnFilter
+		fn FnFilterListType
 	}
 	tests := []struct {
 		name  string

@@ -4,11 +4,6 @@ import (
 	"errors"
 )
 
-// GenerateMapEmpty create an empty MapType
-func GenerateMapEmpty() MapType {
-	result := MapType{}
-	return result
-}
 
 // GenerateMap is the default item
 func GenerateMap(a, b interface{}) MapType {
@@ -33,10 +28,8 @@ func GenerateMapFromZip(keys, values []interface{}) MapType {
 	return GenerateMapFromTuples(tuples)
 }
 
-// ForeachMapType is the default
-type ForeachMapType func(interface{}, interface{}, int)
 
-func callbackMapTypeForeach(index int, key, value interface{}, fnInternal ForeachMapType) (err error) {
+func callbackMapTypeForeach(index int, key, value interface{}, fnInternal FnForeachMap) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 
@@ -56,7 +49,7 @@ func callbackMapTypeForeach(index int, key, value interface{}, fnInternal Foreac
 }
 
 //Foreach is the default
-func (mapType MapType) Foreach(fn ForeachMapType) error {
+func (mapType MapType) Foreach(fn FnForeachMap) error {
 	index := 0
 
 	for key, value := range mapType {
@@ -68,7 +61,7 @@ func (mapType MapType) Foreach(fn ForeachMapType) error {
 	return nil
 }
 
-func callbackMapTypeMap(index int, key, value interface{}, fnInternal MapperMapType) (item interface{}, err error) {
+func callbackMapTypeMap(index int, key, value interface{}, fnInternal FnMapperMap) (item interface{}, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 
@@ -87,11 +80,9 @@ func callbackMapTypeMap(index int, key, value interface{}, fnInternal MapperMapT
 	return item, err
 }
 
-// MapperMapType define the function to be used in Map function
-type MapperMapType func(interface{}, interface{}, int) interface{}
 
 //Map is the default
-func (mapType MapType) Map(fn MapperMapType) (ListType, error) {
+func (mapType MapType) Map(fn FnMapperMap) (ListType, error) {
 	result := ListType{}
 	index := 0
 	for key, value := range mapType {
@@ -107,7 +98,7 @@ func (mapType MapType) Map(fn MapperMapType) (ListType, error) {
 
 //FilterAll is the default
 func (mapType MapType) FilterAll(fn func(interface{}, interface{}) bool) MapType {
-	result := GenerateMapEmpty()
+	result := MapType{}
 	for key, value := range mapType {
 		if fn(key, value) {
 			result[key] = value

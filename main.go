@@ -23,14 +23,14 @@ func examplesWithList() {
 	if err != nil {
 		fmt.Printf("Error %v", err)
 	}
-	fmt.Println(results.Reverse().Join("(♥)"))
+	fmt.Println(results.Reverse().JoinAsString("(♥)"))
 	fmt.Println(results)
 
 	resultFiltered, index, _ := newList.FilterLast(filterUserByAge)
 	fmt.Printf("result of filter %v with index %d\n", resultFiltered, index)
 
 	listTuples, _ := collections.Zip(results.Reverse(), results)
-	fmt.Println(listTuples.Join("(♥)"))
+	fmt.Println(listTuples.JoinAsString("(♥)"))
 }
 
 func filterUserByAge(value interface{}) bool {

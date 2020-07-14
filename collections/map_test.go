@@ -104,7 +104,7 @@ func extracNamesWithError(key, value interface{}, index int) interface{} {
 
 func TestMapType_Map(t *testing.T) {
 	type args struct {
-		fn MapperMapType
+		fn FnMapperMap
 	}
 	tests := []struct {
 		name    string

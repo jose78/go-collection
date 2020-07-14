@@ -5,13 +5,10 @@ import (
 	"fmt"
 )
 
-// GenerateList is the default item
-func GenerateList(items ...interface{}) ListType {
-	return items
-}
+
 
 //Foreach method performs the given action for each element of the array/slice until all elements have been processed or the action generates an exception.
-func (list ListType) Foreach(action func(interface{}, int)) error {
+func (list ListType) Foreach(action FnForeachList) error {
 	for index, item := range list {
 		fmt.Printf("%+v\n", index)
 		if err := callbackForeach(index, item, action); err != nil {
@@ -21,7 +18,7 @@ func (list ListType) Foreach(action func(interface{}, int)) error {
 	return nil
 }
 
-func callbackForeach(index int, item interface{}, fnInternal func(interface{}, int)) (err error) {
+func callbackForeach(index int, item interface{}, fnInternal FnForeachList) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("Recovered in f", r)
@@ -41,7 +38,7 @@ func callbackForeach(index int, item interface{}, fnInternal func(interface{}, i
 	return err
 }
 
-func callbackMap(index int, value interface{}, fnInternal func(interface{}, int) interface{}) (item interface{}, err error) {
+func callbackMap(index int, value interface{}, fnInternal FnMapperList) (item interface{}, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("Recovered in f", r)
@@ -61,10 +58,6 @@ func callbackMap(index int, value interface{}, fnInternal func(interface{}, int)
 	return item, err
 }
 
-
-// FnMapperList define how you should implement a correct mapper.
-type FnMapperList func(interface{}, int) interface{}
-
 //Map function iterates through a ListType, converting each element into a new value using the function as the transformer.
 func (list ListType) Map(mapper FnMapperList) (ListType, error) {
 	result := GenerateList()
@@ -80,8 +73,8 @@ func (list ListType) Map(mapper FnMapperList) (ListType, error) {
 	return result, nil
 }
 
-// Join is the default method
-func (list ListType) Join(separator string) string {
+// JoinAsString concatenates all elements as string .
+func (list ListType) JoinAsString(separator string) string {
 	var result = ""
 	var newSeparator = ""
 	for _, value := range list {
@@ -100,11 +93,8 @@ func (list ListType) Reverse() ListType {
 	return res
 }
 
-// FnFilter this type define the struture the fucntion to implement if you want to filter the List
-type FnFilter func(interface{}) bool
-
 //FilterAll method finds all ocurrences in a collection that matches with the function criteria.
-func (list ListType) FilterAll(fn func(interface{}) bool) ListType {
+func (list ListType) FilterAll(fn FnFilterListType) ListType {
 	result := ListType{}
 	for _, item := range list {
 		if fn(item) {
@@ -115,7 +105,7 @@ func (list ListType) FilterAll(fn func(interface{}) bool) ListType {
 }
 
 //FilterFirst method finds the first ocurrence in a collection that matches with the function criteria. If any iteration fails, it wil return "nil, INDEX_OF_ITERATION, error" ELSE if FIND OK ITEM_SELECTED, INDEX_OF_ITEM , nil ELSE nil, -1, nil
-func (list ListType) FilterFirst(fn FnFilter) (interface{}, int, error) {
+func (list ListType) FilterFirst(fn FnFilterListType) (interface{}, int, error) {
 	for index := 0; index < len(list); index++ {
 		if flag, err := callbackFilter(index, list[index], fn); err != nil {
 			return nil, index, err
@@ -126,7 +116,7 @@ func (list ListType) FilterFirst(fn FnFilter) (interface{}, int, error) {
 	return nil, -1, nil
 }
 
-func callbackFilter(index int, value interface{}, fnInternal FnFilter) (flag bool, err error) {
+func callbackFilter(index int, value interface{}, fnInternal FnFilterListType) (flag bool, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("Recovered in f", r)
@@ -147,7 +137,7 @@ func callbackFilter(index int, value interface{}, fnInternal FnFilter) (flag boo
 }
 
 //FilterLast method finds the first ocurrence in a collection that matches with the function criteria. If any iteration fails, it wil return "nil, INDEX_OF_ITERATION, error" ELSE if FIND OK ITEM_SELECTED, INDEX_OF_ITEM , nil ELSE nil, -1, nil
-func (list ListType) FilterLast(fn FnFilter) (interface{}, int, error) {
+func (list ListType) FilterLast(fn FnFilterListType) (interface{}, int, error) {
 	for index := len(list) - 1; index >= 0; index-- {
 		if flag, err := callbackFilter(index, list[index], fn); err != nil {
 			return nil, index, err
