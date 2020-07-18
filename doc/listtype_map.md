@@ -3,7 +3,7 @@ Map function iterates through a ListType, converting each element into a new val
 
 
 ```go
-package main
+package mai
 
 import (
 	"fmt"
