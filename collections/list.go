@@ -95,7 +95,7 @@ func (list ListType) FilterAll(fn FnFilterList) ListType {
 	result := ListType{}
 	for _, item := range list {
 		if fn(item) {
-			result = append(result, fn(item))
+			result = append(result, item)
 		}
 	}
 	return result
