@@ -4,7 +4,6 @@ import (
 	"errors"
 )
 
-
 // GenerateMap is the default item
 func GenerateMap(a, b interface{}) MapType {
 	result := MapType{}
@@ -27,7 +26,6 @@ func GenerateMapFromZip(keys, values []interface{}) MapType {
 	tuples, _ := Zip(keys, values)
 	return GenerateMapFromTuples(tuples)
 }
-
 
 func callbackMapTypeForeach(index int, key, value interface{}, fnInternal FnForeachMap) (err error) {
 	defer func() {
@@ -80,7 +78,6 @@ func callbackMapTypeMap(index int, key, value interface{}, fnInternal FnMapperMa
 	return item, err
 }
 
-
 //Map function iterates through a ListType, converting each element into a new value using the function as the transformer.
 func (mapType MapType) Map(fn FnMapperMap) (ListType, error) {
 	result := ListType{}
@@ -97,7 +94,7 @@ func (mapType MapType) Map(fn FnMapperMap) (ListType, error) {
 }
 
 //FilterAll method finds all ocurrences in a collection that matches with the function criteria.
-func (mapType MapType) FilterAll(fn func(interface{}, interface{}) bool) MapType {
+func (mapType MapType) FilterAll(fn FnFilterMap) MapType {
 	result := MapType{}
 	for key, value := range mapType {
 		if fn(key, value) {

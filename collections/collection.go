@@ -11,6 +11,9 @@ type FnMapperMap func(interface{}, interface{}, int) interface{}
 // FnFilterList this type define the struture the fucntion to implement if you want to filter the List
 type FnFilterList func(interface{}) bool
 
+// FnFilterMap this type define the struture the fucntion to implement if you want to filter the Map
+type FnFilterMap func(interface{}, interface{}) bool
+
 // FnForeachList define the function to call the foreach method of the ListType
 type FnForeachList func(interface{}, int)
 
