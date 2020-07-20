@@ -1,4 +1,4 @@
-# go-collection
+# go-collection <img align="right" width="70" height="100" src="gopher.jpg">
 
 go-collection provides some types and methods to make easy work with collecctions. 
 
