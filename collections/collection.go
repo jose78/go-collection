@@ -3,10 +3,10 @@ package collections
 import "fmt"
 
 // FnMapperList define how you should implement a correct mapper for Listype
-type FnMapperList func(interface{}, int) interface{}
+type FnMapperList func(interface{}, int) (interface{},interface{})
 
 // FnMapperMap define how you should implement a correct mapper for  MapType
-type FnMapperMap func(interface{}, interface{}, int) interface{}
+type FnMapperMap func(interface{}, interface{}, int) (interface{},interface{})
 
 // FnFilterList this type define the struture the fucntion to implement if you want to filter the List
 type FnFilterList func(interface{}) bool
@@ -19,6 +19,9 @@ type FnForeachList func(interface{}, int)
 
 // FnForeachMap define the function to call the foreach method of the MapType
 type FnForeachMap func(interface{}, interface{}, int)
+
+// ResultType is the default Result object, used as generic object to encapsulate each returned object
+type ResultType []interface{}
 
 // ListType is the default List
 type ListType []interface{}

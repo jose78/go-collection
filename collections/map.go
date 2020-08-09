@@ -59,7 +59,7 @@ func (mapType MapType) Foreach(fn FnForeachMap) error {
 	return nil
 }
 
-func callbackMapTypeMap(index int, key, value interface{}, fnInternal FnMapperMap) (item interface{}, err error) {
+func callbackMapTypeMap(index int, fnKey, fnValue interface{}, fnInternal FnMapperMap) (key,value  interface{}, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 
@@ -74,21 +74,38 @@ func callbackMapTypeMap(index int, key, value interface{}, fnInternal FnMapperMa
 			}
 		}
 	}()
-	item = fnInternal(key, value, index)
-	return item, err
+	key, value  = fnInternal(fnKey, fnValue, index)
+	return 
 }
 
 //Map function iterates through a ListType, converting each element into a new value using the function as the transformer.
-func (mapType MapType) Map(fn FnMapperMap) (ListType, error) {
-	result := ListType{}
+func (mapType MapType) Map(fn FnMapperMap) (result interface{}, err error) {
+	resultList := ListType{}
+	resultMap := MapType{}
+	flagFirstIteratioun := true
+	var flagIsMap bool 
 	index := 0
-	for key, value := range mapType {
-		if item, err := callbackMapTypeMap(index, key, value, fn); err != nil {
+	for loopKey, loopValue := range mapType {
+		key, value , err := callbackMapTypeMap(index, loopKey, loopValue, fn)
+		if flagFirstIteratioun{
+			flagFirstIteratioun = false
+			flagIsMap =  key != nil
+		}
+		if err != nil {
 			return nil, err
 		} else {
-			result = append(result, item)
+			if flagIsMap{
+				resultMap[key] = value
+			}else {
+				resultList = append(resultList, value)	
+			}
 		}
 		index++
+	}
+	if flagIsMap{
+		result = resultMap
+	}else {
+		result = resultList
 	}
 	return result, nil
 }

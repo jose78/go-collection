@@ -86,20 +86,20 @@ func TestMapType_ListValues(t *testing.T) {
 	}
 }
 
-
-
-func extracNames(key, value interface{}, index int) interface{} {
+var extracNames FnMapperMap = func (fnKey, fnValue interface{}, index int) (key, value interface{}) {
 	user := value.(testUser)
-	return fmt.Sprintf("%s", user.name)
+	value = fmt.Sprintf("%s", user.name)
+	return 
 }
 
 
-func extracNamesWithError(key, value interface{}, index int) interface{} {
+var  extracNamesWithError FnMapperMap = func (fnKey, fnValue interface{}, index int) (key, value interface{}) {
 	user := value.(testUser)
 	if user.name == "empty"{
 		panic("This is a dummy error")
 	}
-	return fmt.Sprintf("%s", user.name)
+	value = fmt.Sprintf("%s", user.name)
+	return 
 }
 
 func TestMapType_Map(t *testing.T) {

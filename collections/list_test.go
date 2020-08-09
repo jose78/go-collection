@@ -1,6 +1,7 @@
 package collections
 
 import (
+	"math/rand"
 	"fmt"
 	"reflect"
 	"testing"
@@ -11,17 +12,19 @@ type testUser struct {
 	age  int
 }
 
-var mapperInt FnMapperList =  func (item interface{}, index int) interface{} {
-	value := item.(int)
-	return value * 10
+var mapperInt FnMapperList =  func (item interface{}, index int) (key, value interface{}) {
+	value = item.(int) * 10
+	return 
 }
 
-var mapperUser FnMapperList =  func (item interface{}, index int) interface{} {
+var mapperUser FnMapperList =  func (item interface{}, index int) (key, value interface{}) {
 	user := item.(testUser)
-	return user.name
+	value = user.name
+	key = rand.Intn(10000)
+	return 
 }
 
-var mapperUserWithFails FnMapperList = func (item interface{}, index int) interface{} {
+var mapperUserWithFails FnMapperList = func (item interface{}, index int) (key, value interface{}) {
 	panic(fmt.Errorf("This is a Dummy fail -> %v", item))
 }
 
