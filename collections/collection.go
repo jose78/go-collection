@@ -1,6 +1,8 @@
 package collections
 
-import "fmt"
+import ("fmt"
+"reflect"
+)
 
 // FnMapperList define how you should implement a correct mapper for Listype
 type FnMapperList func(interface{}, int) (interface{},interface{})
@@ -51,4 +53,36 @@ func Zip(a []interface{}, b []interface{}) (ListType, error) {
 		list = append(list, Tuple{a[index], b[index]})
 	}
 	return list, nil
+}
+
+
+
+func compareObjects(o1, o2 interface{}) (flagEquals bool){
+
+	if reflect.TypeOf(o1) ==  reflect.TypeOf(ListType{}) {
+		flagEquals = reflect.DeepEqual(o1.(ListType), o2.(ListType))
+	}else {
+		flagEquals = reflect.DeepEqual(o1.(MapType), o2.(MapType))
+	}
+	return
+}
+
+
+func checkIfAIsContainInB(a,b interface{})  bool{
+
+	if reflect.TypeOf(a) ==  reflect.TypeOf(ListType{}) {
+		for mainItem := range a.(ListType){
+			flagContained := false
+			for item := range b.(ListType){
+				if !flagContained{
+					flagContained = reflect.DeepEqual(item , mainItem) 
+				} 
+			}
+			if ! flagContained{
+				return false
+			}
+		}
+		return true
+	}
+	return false
 }
