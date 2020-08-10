@@ -11,6 +11,7 @@ func GenerateMap(a, b interface{}) MapType {
 	return result
 }
 
+
 // GenerateMapFromTuples is the default item
 func GenerateMapFromTuples(tuples ListType) MapType {
 	result := MapType{}

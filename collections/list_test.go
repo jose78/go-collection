@@ -1,7 +1,6 @@
 package collections
 
 import (
-	"math/rand"
 	"fmt"
 	"reflect"
 	"testing"
@@ -17,10 +16,10 @@ var mapperInt FnMapperList =  func (item interface{}, index int) (key, value int
 	return 
 }
 
-var mapperUser FnMapperList =  func (item interface{}, index int) (key, value interface{}) {
+var mapperListToMap FnMapperList =  func (item interface{}, index int) (key, value interface{}) {
 	user := item.(testUser)
 	value = user.name
-	key = rand.Intn(10000)
+	key = index * 100
 	return 
 }
 
@@ -28,6 +27,12 @@ var mapperUserWithFails FnMapperList = func (item interface{}, index int) (key, 
 	panic(fmt.Errorf("This is a Dummy fail -> %v", item))
 }
 
+func  buildDefaultResultMap()  MapType{
+	result := MapType{}
+	result[0] = "Alvaro"
+	result[100] = "Sofi"
+	return result
+}
 func TestListType_Map(t *testing.T) {
 	type args struct {
 		mapper FnMapperList
@@ -36,21 +41,21 @@ func TestListType_Map(t *testing.T) {
 		name  string
 		list  ListType
 		args  args
-		want  ListType
-		want1 string
+		want  interface{}
+		want1 bool
 	}{
-		{"Should retrive the name of each testUser", GenerateList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}), args{mapperUser}, GenerateList("Alvaro", "Sofi"), ""},
-		{"Should retrive a list with each number *10", GenerateList(3, 4, 5, 6), args{mapperInt}, GenerateList(30, 40, 50, 60), ""},
-		{"Should fail", GenerateList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}), args{mapperUserWithFails}, nil, "This is a Dummy fail"},
+		{"Should retrive the name of each testUser", GenerateList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}), args{mapperListToMap}, buildDefaultResultMap(), false},
+		{"Should retrive a list with each number *10", GenerateList(3, 4, 5, 6), args{mapperInt}, GenerateList(30, 40, 50, 60), false },
+		{"Should fail", GenerateList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}), args{mapperUserWithFails}, nil,  true },
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := tt.list.Map(tt.args.mapper)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ListType.Map() = %v, want %v", got, tt.want)
+			got, err := tt.list.Map(tt.args.mapper)
+			if err != nil &&  !tt.want1 {
+				t.Errorf("ListType.Map() = %v, want %v", err, tt.want1)
 			}
-			if got1 != nil && got1.Error() == tt.want1 {
-				t.Errorf("ListType.Map() = %v, want %v", got1, tt.want1)
+			if err == nil && !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ListType.Map() = %v, want %v", got, tt.want)
 			}
 		})
 	}

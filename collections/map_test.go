@@ -123,7 +123,7 @@ func TestMapType_Map(t *testing.T) {
 			if (err != nil) &&  !tt.wantErr {
 				t.Errorf("MapType.Map() error = %v, wantErr %v", err, tt.wantErr)
 				return
-			} else if  err == nil && !compareObjects(got, tt.want) {
+			} else if  err == nil && !checkIfAIsContainInB(got, tt.want) {
 				t.Errorf("MapType.Map() = %v, want %v", got, tt.want)
 			}
 		})
