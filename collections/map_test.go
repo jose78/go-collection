@@ -86,6 +86,7 @@ func TestMapType_ListValues(t *testing.T) {
 	}
 }
 
+
 var extracNames FnMapperMap = func (fnKey, fnValue interface{}, index int) (key, value interface{}) {
 	user := fnValue.(testUser)
 	value = fmt.Sprintf("%s", user.name)

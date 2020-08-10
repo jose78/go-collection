@@ -23,6 +23,12 @@ var mapperListToMap FnMapperList =  func (item interface{}, index int) (key, val
 	return 
 }
 
+var mapperListToList FnMapperList =  func (item interface{}, index int) (key, value interface{}) {
+	user := item.(testUser)
+	value = user.name
+	return 
+}
+
 var mapperUserWithFails FnMapperList = func (item interface{}, index int) (key, value interface{}) {
 	panic(fmt.Errorf("This is a Dummy fail -> %v", item))
 }
@@ -33,6 +39,8 @@ func  buildDefaultResultMap()  MapType{
 	result[100] = "Sofi"
 	return result
 }
+
+
 func TestListType_Map(t *testing.T) {
 	type args struct {
 		mapper FnMapperList
@@ -44,7 +52,8 @@ func TestListType_Map(t *testing.T) {
 		want  interface{}
 		want1 bool
 	}{
-		{"Should retrive the name of each testUser", GenerateList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}), args{mapperListToMap}, buildDefaultResultMap(), false},
+		{"Should generate a Map", GenerateList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}), args{mapperListToMap}, buildDefaultResultMap(), false},
+		{"Should generate a List", GenerateList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}), args{mapperListToList}, GenerateList("Alvaro" , "Sofi"), false},
 		{"Should retrive a list with each number *10", GenerateList(3, 4, 5, 6), args{mapperInt}, GenerateList(30, 40, 50, 60), false },
 		{"Should fail", GenerateList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}), args{mapperUserWithFails}, nil,  true },
 	}
@@ -54,7 +63,7 @@ func TestListType_Map(t *testing.T) {
 			if err != nil &&  !tt.want1 {
 				t.Errorf("ListType.Map() = %v, want %v", err, tt.want1)
 			}
-			if err == nil && !reflect.DeepEqual(got, tt.want) {
+			if err == nil && !compareObjects(got, tt.want) {
 				t.Errorf("ListType.Map() = %v, want %v", got, tt.want)
 			}
 		})
