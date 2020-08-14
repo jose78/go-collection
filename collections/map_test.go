@@ -87,13 +87,19 @@ func TestMapType_ListValues(t *testing.T) {
 }
 
 
-var extracNames FnMapperMap = func (fnKey, fnValue interface{}, index int) (key, value interface{}) {
+var mapperMapToList FnMapperMap = func (fnKey, fnValue interface{}, index int) (key, value interface{}) {
 	user := fnValue.(testUser)
 	value = fmt.Sprintf("%s", user.name)
 	return 
 }
 
 
+var mapperMapToMap FnMapperMap  = func (fnKey, fnValue interface{}, index int) (key, value interface{}) {
+	user := fnValue.(testUser)
+	value = fmt.Sprintf("%s", user.name)
+	key = index
+	return 
+}
 var  extracNamesWithError FnMapperMap = func (fnKey, fnValue interface{}, index int) (key, value interface{}) {
 	user := fnValue.(testUser)
 	if user.name == "empty"{
@@ -115,8 +121,9 @@ func TestMapType_Map(t *testing.T) {
 		wantErr bool
 	}{
 		
-		{"TestMapType_Map .-. Should return a list with the nams of each value", generateMapTest(), args{extracNames}, GenerateList("Alvaro", "Sofia", "empty"), false},
-		{"TestMapType_Map .-. Should fail ", generateMapTest(), args{extracNamesWithError}, nil , true},
+		{"Should return a list with the nams of each value", generateMapTest(), args{mapperMapToList}, GenerateList("Alvaro", "Sofia", "empty"), false},
+		{"Should return a Map with the nams of each value and their IDś", generateMapTest(), args{mapperMapToList}, GenerateList("Alvaro", "Sofia", "empty"), false},
+		{"Should fail ", generateMapTest(), args{extracNamesWithError}, nil , true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

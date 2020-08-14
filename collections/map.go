@@ -4,12 +4,7 @@ import (
 	"errors"
 )
 
-// GenerateMap is the default item
-func GenerateMap(a, b interface{}) MapType {
-	result := MapType{}
-	result[a] = b
-	return result
-}
+
 
 
 // GenerateMapFromTuples is the default item

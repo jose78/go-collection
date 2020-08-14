@@ -27,7 +27,7 @@ func examplesWithList() {
 	fmt.Println(results.Reverse().JoinAsString("(♥)"))
 	fmt.Println(results)
 
-	resultInterMap, err := results.Map(mapperLstToMap) 
+	resultInterMap, err := results.Map(mapperLstToMap)
 	if err != nil {
 		fmt.Printf("Error %v", err)
 	}

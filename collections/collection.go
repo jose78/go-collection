@@ -42,6 +42,13 @@ func GenerateList(items ...interface{}) ListType {
 	return items
 }
 
+// GenerateMap is the default item
+func GenerateMap(a, b interface{}) MapType {
+	result := MapType{}
+	result[a] = b
+	return result
+}
+
 // Zip function returns a ListType object, which is an array of Tuples where the first item in each passed iterator is paired together, and then the second item in each passed iterator are paired together etc.
 func Zip(a []interface{}, b []interface{}) (ListType, error) {
 	sizeA := len(a)
@@ -78,6 +85,20 @@ func checkIfAIsContainInB(a,b interface{})  bool{
 					flagContained = reflect.DeepEqual(item , mainItem) 
 				} 
 			}
+			if ! flagContained{
+				return false
+			}
+		}
+		return true
+	}else if reflect.TypeOf(a) ==  reflect.TypeOf(MapType{}) {
+		aMap := a.(MapType)
+		bMap := b.(MapType)
+		if len(aMap) == len(bMap){
+			return false
+		}
+		flagContained := false
+		for key := range b.(MapType){
+			flagContained = aMap[key] == bMap[key]
 			if ! flagContained{
 				return false
 			}
