@@ -28,7 +28,7 @@ type user struct {
 }
 
 func main() {
-	newList := col.GenerateList(user{"Alvaro", 6, 1}, user{"Sofia", 3, 2})
+	newList := col.ParseItemsToList(user{"Alvaro", 6, 1}, user{"Sofia", 3, 2})
 	newList = append(newList, user{"Mon", 0, 3})
 
 	newList.Foreach(simpleLoop)

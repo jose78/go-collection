@@ -1,14 +1,15 @@
 package collections
 
-import ("fmt"
-"reflect"
+import (
+	"fmt"
+	"reflect"
 )
 
 // FnMapperList define how you should implement a correct mapper for Listype
-type FnMapperList func(interface{}, int) (interface{},interface{})
+type FnMapperList func(interface{}, int) (interface{}, interface{})
 
 // FnMapperMap define how you should implement a correct mapper for  MapType
-type FnMapperMap func(interface{}, interface{}, int) (interface{},interface{})
+type FnMapperMap func(interface{}, interface{}, int) (interface{}, interface{})
 
 // FnFilterList this type define the struture the fucntion to implement if you want to filter the List
 type FnFilterList func(interface{}) bool
@@ -37,69 +38,94 @@ type Tuple struct {
 	b interface{}
 }
 
-// GenerateList is the default item
-func GenerateList(items ...interface{}) ListType {
+// ParseList Convert to ListType another Slice created prevouosly
+func ParseList(items...interface{}) ListType {
 	return items
 }
 
-// GenerateMap is the default item
-func GenerateMap(a, b interface{}) MapType {
-	result := MapType{}
-	result[a] = b
-	return result
+// ParseMap Convert to MapType another MAP created prevously
+func ParseMap(items map[interface{}]interface{}) MapType {
+	return items
 }
 
-// Zip function returns a ListType object, which is an array of Tuples where the first item in each passed iterator is paired together, and then the second item in each passed iterator are paired together etc.
-func Zip(a []interface{}, b []interface{}) (ListType, error) {
-	sizeA := len(a)
-	if sizeA != len(b) {
-		return nil, fmt.Errorf("Zip error, the length of two arrays show be the same len(a)=%d, len(b)=%d", sizeA, len(b))
+// ParseItemsToList is the default item
+func ParseItemsToList(items ...interface{}) ListType {
+	return items
+}
+
+// ParseListOfTupleToMap Create a Map from Slice of Tuples
+func ParseListOfTupleToMap(tuples []Tuple) (mapped MapType , err error) {
+	result  , err := ParseList(tuples).Map(mapTupleToMap)
+	mapped = result.(MapType)
+	return 
+}
+
+
+var mapTupleToMap FnMapperList = func(item interface{}, index int) (key ,value  interface{}){
+	tuple := item.(Tuple)
+	key = tuple.a
+	value = tuple.b
+	return
+}
+
+// GenerateMapFromZip is the default item
+func GenerateMapFromZip(keys, values []interface{}) MapType {
+	tuples, _ := Zip(keys, values)
+	if mapped , err :=  ParseListOfTupleToMap(tuples); err != nil  {
+		panic(err)	
+	} else {
+		return mapped
 	}
-	list := GenerateList()
+}
+
+// Zip merge the elements into Slice of Tuples, each key will be stored inside of the a filed of Tupule Strunct and each value will be stored un b field
+func Zip(keys []interface{}, values []interface{}) ([]Tuple, error) {
+	sizeA := len(keys)
+	if sizeA != len(values) {
+		return nil, fmt.Errorf("Zip error, the length of two arrays show be the same len(a)=%d, len(b)=%d", sizeA, len(values))
+	}
+	list := []Tuple{}
 	for index := 0; index < sizeA; index++ {
-		list = append(list, Tuple{a[index], b[index]})
+		list = append(list, Tuple{keys[index], values[index]})
 	}
 	return list, nil
 }
 
+func compareObjects(o1, o2 interface{}) (flagEquals bool) {
 
-
-func compareObjects(o1, o2 interface{}) (flagEquals bool){
-
-	if reflect.TypeOf(o1) ==  reflect.TypeOf(ListType{}) {
+	if reflect.TypeOf(o1) == reflect.TypeOf(ListType{}) {
 		flagEquals = reflect.DeepEqual(o1.(ListType), o2.(ListType))
-	}else {
+	} else {
 		flagEquals = reflect.DeepEqual(o1.(MapType), o2.(MapType))
 	}
 	return
 }
 
+func checkIfAIsContainInB(a, b interface{}) bool {
 
-func checkIfAIsContainInB(a,b interface{})  bool{
-
-	if reflect.TypeOf(a) ==  reflect.TypeOf(ListType{}) {
-		for mainItem := range a.(ListType){
+	if reflect.TypeOf(a) == reflect.TypeOf(ListType{}) {
+		for mainItem := range a.(ListType) {
 			flagContained := false
-			for item := range b.(ListType){
-				if !flagContained{
-					flagContained = reflect.DeepEqual(item , mainItem) 
-				} 
+			for item := range b.(ListType) {
+				if !flagContained {
+					flagContained = reflect.DeepEqual(item, mainItem)
+				}
 			}
-			if ! flagContained{
+			if !flagContained {
 				return false
 			}
 		}
 		return true
-	}else if reflect.TypeOf(a) ==  reflect.TypeOf(MapType{}) {
+	} else if reflect.TypeOf(a) == reflect.TypeOf(MapType{}) {
 		aMap := a.(MapType)
 		bMap := b.(MapType)
-		if len(aMap) == len(bMap){
+		if len(aMap) == len(bMap) {
 			return false
 		}
 		flagContained := false
-		for key := range b.(MapType){
+		for key := range b.(MapType) {
 			flagContained = aMap[key] == bMap[key]
-			if ! flagContained{
+			if !flagContained {
 				return false
 			}
 		}

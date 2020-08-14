@@ -58,7 +58,7 @@ func TestMapType_ListKeys(t *testing.T) {
 		mapType MapType
 		want    ListType
 	}{
-		{"Should return a list with the keys of the map", generateMapTest(), GenerateList(1, 2, 3)},
+		{"Should return a list with the keys of the map", generateMapTest(), ParseItemsToList(1, 2, 3)},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -75,7 +75,7 @@ func TestMapType_ListValues(t *testing.T) {
 		mapType MapType
 		want    ListType
 	}{
-		{"Should return a list with the values of the map", generateMapTest(), GenerateList( testUser{"Alvaro", 6} , testUser{"empty", 0},  testUser{"Sofia", 3})},
+		{"Should return a list with the values of the map", generateMapTest(), ParseItemsToList( testUser{"Alvaro", 6} , testUser{"empty", 0},  testUser{"Sofia", 3})},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -121,8 +121,8 @@ func TestMapType_Map(t *testing.T) {
 		wantErr bool
 	}{
 		
-		{"Should return a list with the nams of each value", generateMapTest(), args{mapperMapToList}, GenerateList("Alvaro", "Sofia", "empty"), false},
-		{"Should return a Map with the nams of each value and their IDś", generateMapTest(), args{mapperMapToList}, GenerateList("Alvaro", "Sofia", "empty"), false},
+		{"Should return a list with the nams of each value", generateMapTest(), args{mapperMapToList}, ParseItemsToList("Alvaro", "Sofia", "empty"), false},
+		{"Should return a Map with the nams of each value and their IDś", generateMapTest(), args{mapperMapToList}, ParseItemsToList("Alvaro", "Sofia", "empty"), false},
 		{"Should fail ", generateMapTest(), args{extracNamesWithError}, nil , true},
 	}
 	for _, tt := range tests {

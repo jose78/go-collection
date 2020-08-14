@@ -52,10 +52,10 @@ func TestListType_Map(t *testing.T) {
 		want  interface{}
 		want1 bool
 	}{
-		{"Should generate a Map", GenerateList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}), args{mapperListToMap}, buildDefaultResultMap(), false},
-		{"Should generate a List", GenerateList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}), args{mapperListToList}, GenerateList("Alvaro" , "Sofi"), false},
-		{"Should retrive a list with each number *10", GenerateList(3, 4, 5, 6), args{mapperInt}, GenerateList(30, 40, 50, 60), false },
-		{"Should fail", GenerateList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}), args{mapperUserWithFails}, nil,  true },
+		{"Should generate a Map", ParseItemsToList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}), args{mapperListToMap}, buildDefaultResultMap(), false},
+		{"Should generate a List", ParseItemsToList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}), args{mapperListToList}, ParseItemsToList("Alvaro" , "Sofi"), false},
+		{"Should retrive a list with each number *10", ParseItemsToList(3, 4, 5, 6), args{mapperInt}, ParseItemsToList(30, 40, 50, 60), false },
+		{"Should fail", ParseItemsToList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}), args{mapperUserWithFails}, nil,  true },
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -77,7 +77,7 @@ func TestListType_JoinAsString(t *testing.T) {
 		separator string
 		want      string
 	}{
-		{"Should retrive the name of each testUser", GenerateList("Alvaro", "Sofi"), ",", "Alvaro,Sofi"},
+		{"Should retrive the name of each testUser", ParseItemsToList("Alvaro", "Sofi"), ",", "Alvaro,Sofi"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -94,8 +94,8 @@ func TestListType_Reverse(t *testing.T) {
 		list ListType
 		want ListType
 	}{
-		{"1º - Should generate a new ListTypewith inverted values", GenerateList("Alvaro", "Sofi"), GenerateList("Sofi", "Alvaro")},
-		{"2º - Should generate a new ListTypewith inverted values", GenerateList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}), GenerateList(testUser{"Sofi", 3}, testUser{"Alvaro", 6})},
+		{"1º - Should generate a new ListTypewith inverted values", ParseItemsToList("Alvaro", "Sofi"), ParseItemsToList("Sofi", "Alvaro")},
+		{"2º - Should generate a new ListTypewith inverted values", ParseItemsToList(testUser{"Alvaro", 6}, testUser{"Sofi", 3}), ParseItemsToList(testUser{"Sofi", 3}, testUser{"Alvaro", 6})},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -130,8 +130,8 @@ func TestListType_FilterLast(t *testing.T) {
 		want1 int
 		want2 string
 	}{
-		{"Fimd the last Odd", GenerateList(5, 1, 2, 3, 4, 7, 6, 5, 9, 67), args{filterOddNumber}, 9, 8, ""},
-		{"It should manage the fail", GenerateList(5, 1, 2, 3, 4, 7, 6, 5, 9, 67), args{filterOddNumberWithError}, nil, 8, "This is a Dummy fail -> 9"},
+		{"Fimd the last Odd", ParseItemsToList(5, 1, 2, 3, 4, 7, 6, 5, 9, 67), args{filterOddNumber}, 9, 8, ""},
+		{"It should manage the fail", ParseItemsToList(5, 1, 2, 3, 4, 7, 6, 5, 9, 67), args{filterOddNumberWithError}, nil, 8, "This is a Dummy fail -> 9"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -161,8 +161,8 @@ func TestListType_FilterFirst(t *testing.T) {
 		want1 int
 		want2 string
 	}{
-		{"Fimd the first Odd", GenerateList(5, 1, 2, 3, 4, 7, 6, 5, 9, 67), args{filterOddNumber}, 3, 3, ""},
-		{"It should manage the fail", GenerateList(5, 1, 2, 3, 4, 7, 6, 5, 9, 67), args{filterOddNumberWithError}, nil, 3, "This is a Dummy fail -> 3"},
+		{"Fimd the first Odd", ParseItemsToList(5, 1, 2, 3, 4, 7, 6, 5, 9, 67), args{filterOddNumber}, 3, 3, ""},
+		{"It should manage the fail", ParseItemsToList(5, 1, 2, 3, 4, 7, 6, 5, 9, 67), args{filterOddNumberWithError}, nil, 3, "This is a Dummy fail -> 3"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -181,7 +181,7 @@ func TestListType_FilterFirst(t *testing.T) {
 }
 
 func factorListType() ListType {
-	list := GenerateList()
+	list := ParseItemsToList()
 	for index := 1; index <= 100; index++ {
 		list = append(list, index)
 	}

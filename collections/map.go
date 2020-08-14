@@ -4,25 +4,6 @@ import (
 	"errors"
 )
 
-
-
-
-// GenerateMapFromTuples is the default item
-func GenerateMapFromTuples(tuples ListType) MapType {
-	result := MapType{}
-	for _, item := range tuples {
-		tuple := item.(Tuple)
-		result[tuple.a] = tuple.b
-	}
-	return result
-}
-
-// GenerateMapFromZip is the default item
-func GenerateMapFromZip(keys, values []interface{}) MapType {
-	tuples, _ := Zip(keys, values)
-	return GenerateMapFromTuples(tuples)
-}
-
 func callbackMapTypeForeach(index int, key, value interface{}, fnInternal FnForeachMap) (err error) {
 	defer func() {
 		if r := recover(); r != nil {

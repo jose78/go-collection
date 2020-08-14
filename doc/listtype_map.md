@@ -17,8 +17,8 @@ type user struct {
 }
 
 func main() {
-	//	var newList collections.ListType = collections.GenerateList(user{"Alvaro",6,1},user{"Sofia",3,2})
-	newList := collections.GenerateList(user{"Alvaro", 6, 1}, user{"Sofia", 3, 2})
+	//	var newList collections.ListType = collections.ParseItemsToList(user{"Alvaro",6,1},user{"Sofia",3,2})
+	newList := collections.ParseItemsToList(user{"Alvaro", 6, 1}, user{"Sofia", 3, 2})
 	results, err := newList.Map(mapperLst)
 	if err != nil {
 		fmt.Printf("Error %v", err)
