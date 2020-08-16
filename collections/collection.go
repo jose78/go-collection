@@ -39,7 +39,7 @@ type Tuple struct {
 }
 
 // ParseList Convert to ListType another Slice created prevouosly
-func ParseList(items...interface{}) ListType {
+func ParseList(items ...interface{}) ListType {
 	return items
 }
 

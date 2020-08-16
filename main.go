@@ -38,9 +38,12 @@ func examplesWithList() {
 	resultFiltered, index, _ := newList.FilterLast(filterUserByAge)
 	fmt.Printf("result of filter %v with index %d\n", resultFiltered, index)
 
-	listTuples, _ := collections.Zip(results.Reverse(), results)
-	fmt.Println(listTuples.JoinAsString("(♥)"))
+
 }
+
+func print(item interface{}, index int){
+	fmt.Println("item ->" , item)
+} 
 
 
 
