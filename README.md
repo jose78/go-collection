@@ -39,7 +39,7 @@ var simpleLoop col.FnForeachList = func(mapper interface{}, index int) {
 }
 ```
 
-You can find a lot of examples in wiki section.
+You can find a lot of examples in [wiki](https://github.com/jose78/go-collection/wiki) section.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
