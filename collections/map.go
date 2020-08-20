@@ -2,6 +2,7 @@ package collections
 
 import (
 	"errors"
+	"fmt"
 )
 
 func callbackMapTypeForeach(index int, key, value interface{}, fnInternal FnForeachMap) (err error) {
@@ -86,15 +87,39 @@ func (mapType MapType) Map(fn FnMapperMap) (result interface{}, err error) {
 	return result, nil
 }
 
+func callbackFilterMap(key interface{}, value interface{}, fnInternal FnFilterMap) (flag bool, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in f", r)
+			// find out exactly what the error was and set err
+			switch x := r.(type) {
+			case string:
+				err = errors.New(x)
+			case error:
+				err = x
+			default:
+				err = errors.New("Unknown panic")
+			}
+			fmt.Printf("ERROR: %v", err)
+		}
+	}()
+	flag = fnInternal(key, value)
+	return flag, err
+}
+
 //FilterAll method finds all ocurrences in a collection that matches with the function criteria.
-func (mapType MapType) FilterAll(fn FnFilterMap) MapType {
+func (mapType MapType) FilterAll(fn FnFilterMap) (MapType, error) {
 	result := MapType{}
 	for key, value := range mapType {
-		if fn(key, value) {
+		flag, err := callbackFilterMap(key, value, fn)
+		if err != nil {
+			return nil, err
+		} 
+		if flag {
 			result[key] = value
 		}
 	}
-	return result
+	return result, nil
 }
 
 //ListValues obtains a ListType of the values in this Map.

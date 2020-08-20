@@ -114,7 +114,7 @@ func (list ListType) FilterAll(fn FnFilterList) (ListType, error) {
 			result = append(result, list[index])
 		}
 	}
-	return result, nil 
+	return result, nil
 }
 
 //FilterFirst method finds the first occurrence in a collection that matches with the function criteria. If any iteration fails, it wil return "nil, INDEX_OF_ITERATION, error" ELSE if FIND OK ITEM_SELECTED, INDEX_OF_ITEM , nil ELSE nil, -1, nil

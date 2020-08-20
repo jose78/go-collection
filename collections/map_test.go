@@ -25,6 +25,10 @@ func filterMapOddNumber(item interface{}) bool {
 	return item.(int)%3 == 0
 }
 
+func filterEmptyNameWithFail(key interface{}, value interface{}) bool {
+	panic("This is another dummy error")
+}
+
 func filterEmptyName(key interface{}, value interface{}) bool {
 	user := value.(testUser)
 	return user.name != "empty"
@@ -35,18 +39,26 @@ func TestMapType_FilterAll(t *testing.T) {
 		fn func(interface{}, interface{}) bool
 	}
 	tests := []struct {
-		name    string
-		mapType MapType
-		args    args
-		want    MapType
+		name      string
+		mapType   MapType
+		args      args
+		want      MapType
+		flagError bool
 	}{
-		{"Fimd the last Odd", generateMapTest(), args{filterEmptyName}, generateResultMapTest()},
+		{"Fimd the last Odd", generateMapTest(), args{filterEmptyName}, generateResultMapTest(), false},
+		{"Fimd the last Odd", generateMapTest(), args{filterEmptyNameWithFail}, generateResultMapTest(), true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.mapType.FilterAll(tt.args.fn); !reflect.DeepEqual(got, tt.want) {
+			got, got2 := tt.mapType.FilterAll(tt.args.fn)
+			if got2 == nil && !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("MapType.FilterAll() = %v, want %v", got, tt.want)
 			}
+
+			if got2 != nil && !tt.flagError {
+				t.Errorf("error %v in %v", got2, tt.name)
+			}
+			//if got2 != nil && tt.flagError
 		})
 	}
 }
