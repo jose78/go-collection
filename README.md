@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/jose78/go-collection)](https://goreportcard.com/report/github.com/jose78/go-collection)
+
 # go-collection <img align="right" width="60" height="100" src="gopher.jpg">
 
 go-collection provides some types and methods to make easy work with collecctions. 
