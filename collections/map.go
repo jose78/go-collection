@@ -114,7 +114,7 @@ func (mapType MapType) FilterAll(fn FnFilterMap) (MapType, error) {
 		flag, err := callbackFilterMap(key, value, fn)
 		if err != nil {
 			return nil, err
-		} 
+		}
 		if flag {
 			result[key] = value
 		}
