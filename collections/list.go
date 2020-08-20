@@ -104,7 +104,7 @@ func (list ListType) Reverse() ListType {
 	return res
 }
 
-//FilterAll method finds all ocurrences in a collection that matches with the function criteria.
+//FilterAll method finds all occurrences in a collection that matches with the function criteria.
 func (list ListType) FilterAll(fn FnFilterList) ListType {
 	result := ListType{}
 	for _, item := range list {
@@ -115,7 +115,7 @@ func (list ListType) FilterAll(fn FnFilterList) ListType {
 	return result
 }
 
-//FilterFirst method finds the first ocurrence in a collection that matches with the function criteria. If any iteration fails, it wil return "nil, INDEX_OF_ITERATION, error" ELSE if FIND OK ITEM_SELECTED, INDEX_OF_ITEM , nil ELSE nil, -1, nil
+//FilterFirst method finds the first occurrence in a collection that matches with the function criteria. If any iteration fails, it wil return "nil, INDEX_OF_ITERATION, error" ELSE if FIND OK ITEM_SELECTED, INDEX_OF_ITEM , nil ELSE nil, -1, nil
 func (list ListType) FilterFirst(fn FnFilterList) (interface{}, int, error) {
 	for index := 0; index < len(list); index++ {
 		if flag, err := callbackFilter(index, list[index], fn); err != nil {
@@ -147,7 +147,7 @@ func callbackFilter(index int, value interface{}, fnInternal FnFilterList) (flag
 	return flag, err
 }
 
-//FilterLast method finds the first ocurrence in a collection that matches with the function criteria. If any iteration fails, it wil return "nil, INDEX_OF_ITERATION, error" ELSE if FIND OK ITEM_SELECTED, INDEX_OF_ITEM , nil ELSE nil, -1, nil
+//FilterLast method finds the first occurrence in a collection that matches with the function criteria. If any iteration fails, it wil return "nil, INDEX_OF_ITERATION, error" ELSE if FIND OK ITEM_SELECTED, INDEX_OF_ITEM , nil ELSE nil, -1, nil
 func (list ListType) FilterLast(fn FnFilterList) (interface{}, int, error) {
 	for index := len(list) - 1; index >= 0; index-- {
 		if flag, err := callbackFilter(index, list[index], fn); err != nil {
