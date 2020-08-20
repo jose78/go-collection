@@ -51,7 +51,6 @@ func TestMapType_FilterAll(t *testing.T) {
 	}
 }
 
-
 func TestMapType_ListKeys(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -75,7 +74,7 @@ func TestMapType_ListValues(t *testing.T) {
 		mapType MapType
 		want    ListType
 	}{
-		{"Should return a list with the values of the map", generateMapTest(), ParseItemsToList( testUser{"Alvaro", 6} , testUser{"empty", 0},  testUser{"Sofia", 3})},
+		{"Should return a list with the values of the map", generateMapTest(), ParseItemsToList(testUser{"Alvaro", 6}, testUser{"empty", 0}, testUser{"Sofia", 3})},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -86,27 +85,25 @@ func TestMapType_ListValues(t *testing.T) {
 	}
 }
 
-
-var mapperMapToList FnMapperMap = func (fnKey, fnValue interface{}, index int) (key, value interface{}) {
+var mapperMapToList FnMapperMap = func(fnKey, fnValue interface{}, index int) (key, value interface{}) {
 	user := fnValue.(testUser)
 	value = fmt.Sprintf("%s", user.name)
-	return 
+	return
 }
 
-
-var mapperMapToMap FnMapperMap  = func (fnKey, fnValue interface{}, index int) (key, value interface{}) {
+var mapperMapToMap FnMapperMap = func(fnKey, fnValue interface{}, index int) (key, value interface{}) {
 	user := fnValue.(testUser)
 	value = fmt.Sprintf("%s", user.name)
 	key = index
-	return 
+	return
 }
-var  extracNamesWithError FnMapperMap = func (fnKey, fnValue interface{}, index int) (key, value interface{}) {
+var extracNamesWithError FnMapperMap = func(fnKey, fnValue interface{}, index int) (key, value interface{}) {
 	user := fnValue.(testUser)
-	if user.name == "empty"{
+	if user.name == "empty" {
 		panic("This is a dummy error")
 	}
 	value = fmt.Sprintf("%s", user.name)
-	return 
+	return
 }
 
 func TestMapType_Map(t *testing.T) {
@@ -120,26 +117,23 @@ func TestMapType_Map(t *testing.T) {
 		want    ListType
 		wantErr bool
 	}{
-		
+
 		{"Should return a list with the nams of each value", generateMapTest(), args{mapperMapToList}, ParseItemsToList("Alvaro", "Sofia", "empty"), false},
 		{"Should return a Map with the nams of each value and their IDś", generateMapTest(), args{mapperMapToList}, ParseItemsToList("Alvaro", "Sofia", "empty"), false},
-		{"Should fail ", generateMapTest(), args{extracNamesWithError}, nil , true},
+		{"Should fail ", generateMapTest(), args{extracNamesWithError}, nil, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.mapType.Map(tt.args.fn)
-			if (err != nil) &&  !tt.wantErr {
+			if (err != nil) && !tt.wantErr {
 				t.Errorf("MapType.Map() error = %v, wantErr %v", err, tt.wantErr)
 				return
-			} else if  err == nil && !checkIfAIsContainInB(got, tt.want) {
+			} else if err == nil && !checkIfAIsContainInB(got, tt.want) {
 				t.Errorf("MapType.Map() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
-
-
-
 
 func printEachItem(key, value interface{}, index int) {
 	fmt.Printf("%d .- key: %v - value: %v", index, key, value)

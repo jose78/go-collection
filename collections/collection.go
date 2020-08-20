@@ -54,14 +54,13 @@ func ParseItemsToList(items ...interface{}) ListType {
 }
 
 // ParseListOfTupleToMap Create a Map from Slice of Tuples
-func ParseListOfTupleToMap(tuples []Tuple) (mapped MapType , err error) {
-	result  , err := ParseList(tuples).Map(mapTupleToMap)
+func ParseListOfTupleToMap(tuples []Tuple) (mapped MapType, err error) {
+	result, err := ParseList(tuples).Map(mapTupleToMap)
 	mapped = result.(MapType)
-	return 
+	return
 }
 
-
-var mapTupleToMap FnMapperList = func(item interface{}, index int) (key ,value  interface{}){
+var mapTupleToMap FnMapperList = func(item interface{}, index int) (key, value interface{}) {
 	tuple := item.(Tuple)
 	key = tuple.a
 	value = tuple.b
@@ -71,8 +70,8 @@ var mapTupleToMap FnMapperList = func(item interface{}, index int) (key ,value  
 // GenerateMapFromZip is the default item
 func GenerateMapFromZip(keys, values []interface{}) MapType {
 	tuples, _ := Zip(keys, values)
-	if mapped , err :=  ParseListOfTupleToMap(tuples); err != nil  {
-		panic(err)	
+	if mapped, err := ParseListOfTupleToMap(tuples); err != nil {
+		panic(err)
 	} else {
 		return mapped
 	}

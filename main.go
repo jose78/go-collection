@@ -38,34 +38,29 @@ func examplesWithList() {
 	resultFiltered, index, _ := newList.FilterLast(filterUserByAge)
 	fmt.Printf("result of filter %v with index %d\n", resultFiltered, index)
 
-
 }
 
-func print(item interface{}, index int){
-	fmt.Println("item ->" , item)
-} 
-
-
+func print(item interface{}, index int) {
+	fmt.Println("item ->", item)
+}
 
 func filterUserByAge(value interface{}) bool {
 	user := value.(user)
 	return user.age > 3
 }
 
-var mapperLst collections.FnMapperList =  func (mapper interface{}, index int) (key, value interface{}) {
+var mapperLst collections.FnMapperList = func(mapper interface{}, index int) (key, value interface{}) {
 	user1Item := mapper.(user)
 	value = user1Item.name
-	return 
+	return
 }
 
-
-var mapperLstToMap collections.FnMapperList =  func (mapper interface{}, index int) (key, value interface{}) {
-	value  = mapper
+var mapperLstToMap collections.FnMapperList = func(mapper interface{}, index int) (key, value interface{}) {
+	value = mapper
 	key = index
-	return 
+	return
 }
 
-
-var printLoopMap collections.FnForeachMap = func (key interface{}, value interface{}, index int){
-	fmt.Printf("%d - %s \n" , key, value)
+var printLoopMap collections.FnForeachMap = func(key interface{}, value interface{}, index int) {
+	fmt.Printf("%d - %s \n", key, value)
 }
