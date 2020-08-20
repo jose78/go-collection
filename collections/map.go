@@ -70,12 +70,11 @@ func (mapType MapType) Map(fn FnMapperMap) (result interface{}, err error) {
 		}
 		if err != nil {
 			return nil, err
+		}
+		if flagIsMap {
+			resultMap[key] = value
 		} else {
-			if flagIsMap {
-				resultMap[key] = value
-			} else {
-				resultList = append(resultList, value)
-			}
+			resultList = append(resultList, value)
 		}
 		index++
 	}
