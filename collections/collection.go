@@ -121,7 +121,7 @@ func checkIfAIsContainInB(a, b interface{}) bool {
 		if len(aMap) == len(bMap) {
 			return false
 		}
-		flagContained := false
+		var flagContained bool
 		for key := range b.(MapType) {
 			flagContained = aMap[key] == bMap[key]
 			if !flagContained {
