@@ -104,15 +104,17 @@ func (list ListType) Reverse() ListType {
 	return res
 }
 
-//FilterAll method finds all occurrences in a collection that matches with the function criteria.
-func (list ListType) FilterAll(fn FnFilterList) ListType {
+//FilterAll method finds all occurrences in a collection that matches with the function criteria. If any iteration fails, it wil return "nil, error" else a list with the selected items
+func (list ListType) FilterAll(fn FnFilterList) (ListType, error) {
 	result := ListType{}
-	for _, item := range list {
-		if fn(item) {
-			result = append(result, item)
+	for index := 0; index < len(list); index++ {
+		if flag, err := callbackFilter(index, list[index], fn); err != nil {
+			return nil, err
+		} else if flag {
+			result = append(result, list[index])
 		}
 	}
-	return result
+	return result, nil 
 }
 
 //FilterFirst method finds the first occurrence in a collection that matches with the function criteria. If any iteration fails, it wil return "nil, INDEX_OF_ITERATION, error" ELSE if FIND OK ITEM_SELECTED, INDEX_OF_ITEM , nil ELSE nil, -1, nil

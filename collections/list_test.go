@@ -148,6 +148,33 @@ func TestListType_FilterLast(t *testing.T) {
 	}
 }
 
+func TestListType_FilterAll(t *testing.T) {
+	type args struct {
+		fn FnFilterList
+	}
+	tests := []struct {
+		name  string
+		list  ListType
+		args  args
+		want  interface{}
+		want2 bool
+	}{
+		{"Fimd the first Odd", ParseItemsToList(5, 1, 2, 3, 4, 7, 6, 5, 9, 67), args{filterOddNumber}, ParseItemsToList(3,6,9),  false},
+		{"It should manage the fail", ParseItemsToList(5, 1, 2, 3, 4, 7, 6, 5, 9, 67), args{filterOddNumberWithError}, nil,  true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got,  got2 := tt.list.FilterAll(tt.args.fn)
+			if got2 == nil && !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ListType.FilterAll() got = %v, want %v", got, tt.want)
+			}
+			if got2 != nil &&  !tt.want2 {
+				t.Errorf("ListType.FilterAll() got=%v(%T), got2 = %v(%T), want %v(%T)", got, got, got2, got2, tt.want2, tt.want2)
+			}
+		})
+	}
+}
+
 func TestListType_FilterFirst(t *testing.T) {
 	type args struct {
 		fn FnFilterList
