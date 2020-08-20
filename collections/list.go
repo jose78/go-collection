@@ -69,14 +69,12 @@ func (list ListType) Map(fn FnMapperList) (result interface{}, err error) {
 		}
 		if err != nil {
 			return nil, err
-		} else {
-			if flagIsMap {
-				resultMap[key] = value
-			} else {
-				resultList = append(resultList, value)
-			}
 		}
-		index++
+		if flagIsMap {
+			resultMap[key] = value
+		} else {
+			resultList = append(resultList, value)
+		}
 	}
 	if flagIsMap {
 		result = resultMap
