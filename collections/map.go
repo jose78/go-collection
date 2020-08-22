@@ -107,7 +107,7 @@ func callbackFilterMap(key interface{}, value interface{}, fnInternal FnFilterMa
 	return flag, err
 }
 
-//FilterAll method finds all ocurrences in a collection that matches with the function criteria.
+//FilterAll method finds all ocurrences in a collection that matches with the function criteria. If there any error the flow will be interupted and returned
 func (mapType MapType) FilterAll(fn FnFilterMap) (MapType, error) {
 	result := MapType{}
 	for key, value := range mapType {
