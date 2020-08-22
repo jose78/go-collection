@@ -55,15 +55,10 @@ func ParseItemsToList(items ...interface{}) ListType {
 
 // ParseListOfTupleToMap Create a Map from Slice of Tuples
 func ParseListOfTupleToMap(tuples []Tuple) (mapped MapType, err error) {
-	result, err := ParseList(tuples).Map(mapTupleToMap)
-	mapped = result.(MapType)
-	return
-}
-
-var mapTupleToMap FnMapperList = func(item interface{}, index int) (key, value interface{}) {
-	tuple := item.(Tuple)
-	key = tuple.a
-	value = tuple.b
+	mapped = MapType{}
+	for _, tuple := range tuples {
+		mapped[tuple.a] = tuple.b
+	}
 	return
 }
 
