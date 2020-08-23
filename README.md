@@ -3,7 +3,7 @@
 [![CircleCI](https://circleci.com/gh/jose78/go-collection.svg?style=shield)](https://circleci.com/gh/jose78/go-collection)
 
 
-# go-collection <img align="right" width="60" height="100" src="gopher.jpg">
+# go-collection <img align="right" width="60" height="100" src="resources/gopher.jpg">
 
 go-collection provides some types and methods to make easy work with collecctions. 
 
