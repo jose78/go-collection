@@ -3,6 +3,11 @@
 # Check https://circleci.com/docs/2.0/language-go/ for more details
 jobs:
  build:
+    filters:
+      branches:
+        only:
+          - develop
+          - master
     docker:
       # specify the version
       - image: circleci/golang:1.9
