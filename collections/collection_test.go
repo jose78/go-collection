@@ -96,3 +96,22 @@ func TestParseListOfTupleToMap(t *testing.T) {
 		})
 	}
 }
+
+func Test_compareObjects(t *testing.T) {
+	tests := []struct {
+		name           string
+		o1             interface{}
+		o2             interface{}
+		wantFlagEquals bool
+	}{
+		{"Should be the same", ListType{1, 2, 3, 4, 5}, ListType{1, 2, 3, 4, 5}, true},
+		{"Should be false", generateMapTest(), generateMapResult(), false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotFlagEquals := compareObjects(tt.o1, tt.o2); gotFlagEquals != tt.wantFlagEquals {
+				t.Errorf("compareObjects() = %v, want %v", gotFlagEquals, tt.wantFlagEquals)
+			}
+		})
+	}
+}
