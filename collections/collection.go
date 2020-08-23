@@ -38,21 +38,6 @@ type Tuple struct {
 	b interface{}
 }
 
-// ParseList Convert to ListType another Slice created prevouosly
-func ParseList(items ...interface{}) ListType {
-	return items
-}
-
-// ParseMap Convert to MapType another MAP created prevously
-func ParseMap(items map[interface{}]interface{}) MapType {
-	return items
-}
-
-// ParseItemsToList is the default item
-func ParseItemsToList(items ...interface{}) ListType {
-	return items
-}
-
 // ParseListOfTupleToMap Create a Map from Slice of Tuples
 func ParseListOfTupleToMap(tuples []Tuple) (mapped MapType, err error) {
 	mapped = MapType{}
