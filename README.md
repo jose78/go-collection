@@ -1,6 +1,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/jose78/go-collection)](https://goreportcard.com/report/github.com/jose78/go-collection)
 [![Coverage Status](https://coveralls.io/repos/github/jose78/go-collection/badge.svg?branch=master)](https://coveralls.io/github/jose78/go-collection?branch=master)
-[![CircleCI](https://circleci.com/github/jose78/go-collection.svg?style=svg)](https://app.circleci.com/pipelines/github/jose78/go-collection)
+[![CircleCI](https://circleci.com/gh/jose78/go-collection.svg?style=shield)](https://circleci.com/gh/jose78/go-collection.svg?style=shield)
 
 
 # go-collection <img align="right" width="60" height="100" src="gopher.jpg">
