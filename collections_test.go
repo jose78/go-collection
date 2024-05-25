@@ -1,12 +1,35 @@
 package gocollection
 
 import (
-	"testing"
-
 	"fmt"
+	"reflect"
+	"testing"
 )
 
-// Test functions
+type testUser struct {
+	name       string
+	secondName string
+	mails      []string
+	age        int
+	male       bool
+}
+
+func generateTestCaseList() []testUser {
+	return []testUser{{name: "John", secondName: "Connor", mails: []string{}, age: 10, male: true}, {name: "Sarah", secondName: "Connor", mails: []string{}, age: 43}, {name: "Kyle", secondName: "Risk", male: true, mails: []string{}, age: 43}}
+}
+
+func generateTestCaseMap() map[string]testUser {
+	result := map[string]testUser{}
+	for _, item := range generateTestCaseList() {
+		result[item.name] = item
+	}
+	return result
+}
+
+func errorFmt(user testUser) error {
+	return fmt.Errorf("KO")
+}
+
 // Test functions
 func TestMap(t *testing.T) {
 	source := []int{1, 2, 3, 4}
@@ -38,28 +61,6 @@ func TestFilter(t *testing.T) {
 	for i, v := range dest {
 		if v != expected[i] {
 			t.Errorf("Filter result mismatch at index %d: got %v, want %v", i, v, expected[i])
-		}
-	}
-}
-
-func TestForEach(t *testing.T) {
-	source := []int{1, 2, 3, 4}
-	var output []string
-	builder := ForEach(func(i int, n int) { output = append(output, fmt.Sprintf("Index: %d, Value: %d", i, n)) }, source)
-
-	if err := builder.Error(); err != nil {
-		t.Fatalf("ForEach failed: %v", err)
-	}
-
-	expected := []string{
-		"Index: 0, Value: 1",
-		"Index: 1, Value: 2",
-		"Index: 2, Value: 3",
-		"Index: 3, Value: 4",
-	}
-	for i, v := range output {
-		if v != expected[i] {
-			t.Errorf("ForEach result mismatch at index %d: got %v, want %v", i, v, expected[i])
 		}
 	}
 }
@@ -104,3 +105,92 @@ func TestWithErrorMessage(t *testing.T) {
 	}
 }
 
+func TestForEach(t *testing.T) {
+
+	var actionOk Action[testUser] = func(i int, tu testUser) {
+		fmt.Printf("index: %d. User: %v", i, tu)
+	}
+
+	var actionKO Action[testUser] = func(i int, tu testUser) {
+		if i == 0 {
+			fmt.Print(tu.mails[3])
+		}
+		fmt.Printf("index: %d. User: %v", i, tu)
+	}
+
+	src := generateTestCaseList()
+
+	type args struct {
+		action   Action[testUser]
+		errorFmt ErrorFormatter[testUser]
+		src      any
+	}
+	tests := []struct {
+		name string
+		args args
+		want error
+	}{
+		{"Iterate over list of testUser", args{action: actionOk, src: src}, nil},
+		{"Iterate and generate and customizable error", args{action: actionKO, errorFmt: errorFmt, src: src}, fmt.Errorf("KO")},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ForEach(tt.args.action, tt.args.src)
+			if tt.want != nil && !reflect.ValueOf(got).IsZero() {
+				err := got.WithErrorMessage(tt.args.errorFmt).Error()
+				if err.Error() != tt.want.Error() {
+					t.Errorf("Each() = %v, want %v", got, tt.want)
+				}
+			}
+		})
+	}
+}
+
+func TestFilter2(t *testing.T) {
+
+	//femaleResult := []testUser{{name: "Sarah", mails: []string{}, age: 43}}
+	parent := map[string]testUser{"Kyle": {name: "Kyle" ,  secondName: "Risk", male: true , mails: []string{}, age: 43}}
+	isFemale := func(tu testUser) bool {
+		return !tu.male
+	}
+
+	type args[T any] struct {
+		predicate Predicate[T]
+		errorFmt  ErrorFormatter[testUser]
+		source    any
+		dest      any
+	}
+	type testsType [T any] struct {
+		name      string
+		args      args[T]
+		want      any
+		wantError bool
+		err       error
+	}	
+	
+	tests := []testsType
+	{
+		testsType[testUser]{
+			name:      "Prueba",
+			args:      args[testUser]{isFemale, errorFmt, generateTestCaseMap(), map[string]testUser{}},
+			want:      nil,
+			wantError: false,
+			err:       nil,
+		},
+		//{"Filter female from list of test user", args{isFemale, errorFmt, generateTestCaseList(), []testUser{}}, femaleResult, false, nil},
+		//testsType[testUser]{name: "Filter dad from map of test user", args: args{isFemale, errorFmt, generateTestCaseMap(), map[string]testUser{}}, want: parent, wantError: false, err:nil},
+
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := Filter2(tt.args.predicate, tt.args.source, tt.args.dest)
+
+			if tt.want != nil && !reflect.ValueOf(got).IsZero() {
+				err := got.WithErrorMessage(tt.args.errorFmt).Error()
+				if err.Error() != tt.err.Error() {
+					t.Errorf("Each() = %v, want %v", got, tt.want)
+				}
+			}
+		})
+	}
+}

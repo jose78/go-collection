@@ -3,6 +3,7 @@ package gocollection
 import (
 	"errors"
 	"fmt"
+	"reflect"
 )
 
 // Touple represents a key-value pair with a generic key and value.
@@ -12,9 +13,9 @@ import (
 //
 // K - the type of the key, which must be comparable.
 // V - the type of the value, which can be any type.
-type Touple[K comparable, V any] struct {
-	Key   K // Key is the key of the key-value pair.
-	Value V // Value is the value of the key-value pair.
+type Touple struct {
+	Key   any // Key is the key of the key-value pair.
+	Value any // Value is the value of the key-value pair.
 }
 
 // Mapper represents a function that takes a value of any type T and returns a value of any type.
@@ -36,7 +37,7 @@ type Action[T any] func(int, T)
 // The key must be of a comparable type.
 // K - the type of the key, which must be comparable.
 // V - the type of the value.
-type KeySelector[K comparable, V any] func(K) Touple[K, V]
+type KeySelector[K comparable, V any] func(K) Touple
 
 // Builder struct with an error and the item that caused the error
 type Builder[T any] struct {
@@ -46,7 +47,22 @@ type Builder[T any] struct {
 
 // Method to retrieve the error from the builder
 func (b *Builder[T]) Error() error {
+
+	flag := b.err == nil
+
+	fmt.Println(flag)
+
 	return b.err
+}
+
+type ErrorFormatter[T any] func(T) error // New type for error formatting
+
+// Method to set a custom error message in the builder using a function
+func (b *Builder[T]) WithErrorMessage(fn ErrorFormatter[T]) *Builder[T] {
+	if fn != nil {
+		b.err = fn(b.item)
+	}
+	return b
 }
 
 // Map applies a Mapper function to each element in the source collection and stores the result in the dest collection.
@@ -96,18 +112,58 @@ func Filter[T any](predicate Predicate[T], source []T, dest *[]T) *Builder[T] {
 // action - the function that is executed for each element, taking the index and the element as parameters.
 // source - the input collection of elements.
 // Returns an error if the operation fails.
-func ForEach[T any](action Action[T], source []T) *Builder[T] {
-	b := &Builder[T]{}
-	for i, item := range source {
-		defer func(idx int, i T) {
-			if r := recover(); r != nil {
-				b.err = fmt.Errorf("error in action at index %d: %v", idx, r)
-				b.item = i
+func ForEach[K any](action Action[K], src any) *Builder[K] {
+	var errBuilder *Builder[K]
+	count := -1
+
+	evaluate := func(item any) {
+		count++
+		defer func(item K) {
+			if err := recover(); err != nil {
+				errBuilder = &Builder[K]{
+					item: item,
+					err:  fmt.Errorf("Error: iterating within the forEach item:%v:  -->  %v", item, err),
+				}
 			}
-		}(i, item)
-		action(i, item)
+		}(item.(K))
+		action(count, item.(K))
+
 	}
-	return b
+
+	switch t := reflect.TypeOf(src); t.Kind() {
+	case reflect.Array:
+		for _, item := range src.([]K) {
+			if reflect.ValueOf(errBuilder).IsZero() {
+				break
+			}
+			if reflect.ValueOf(errBuilder).IsNil() {
+				break
+			}
+			evaluate(item)
+		}
+	case reflect.Slice:
+		for _, item := range src.([]K) {
+			if !reflect.ValueOf(errBuilder).IsZero() {
+				break
+			}
+			if !reflect.ValueOf(errBuilder).IsNil() {
+				break
+			}
+			evaluate(item)
+		}
+	case reflect.Map:
+		val := reflect.ValueOf(src)
+		for _, key := range val.MapKeys() {
+			value := val.MapIndex(key)
+			touple := Touple{key, value}
+			evaluate(touple)
+		}
+
+	default:
+		panic(fmt.Sprintf("El tipo de 'src' debe ser lista o map, no %T", src))
+	}
+
+	return errBuilder
 }
 
 // Zip combines two slices into a map, using elements from the keys slice as keys and elements from the values slice as values.
@@ -135,17 +191,36 @@ func Zip[K comparable, V any](keys []K, values []V, result map[K]V) *Builder[K] 
 	return b
 }
 
-
-
-
-type ErrorFormatter[T any] func(T) error // New type for error formatting
-
-
-// Method to set a custom error message in the builder using a function
-func (b *Builder[T]) WithErrorMessage(f ErrorFormatter[T]) *Builder[T] {
-	if b.err != nil && f != nil {
-		b.err = f(b.item)
-	}
-	return b
+func isMap(elements any) bool {
+	t := reflect.TypeOf(elements)
+	return reflect.Map == t.Kind()
 }
 
+func Filter2[T any](predicate Predicate[T], source any, dest any) *Builder[T] {
+
+	var action Action[T] = func(index int, item T) {
+
+		store := func(data any) {
+			if isMap(dest) {
+				val := reflect.ValueOf(dest)
+				keyVal := reflect.ValueOf(data.(Touple).Key)
+				valueVal := reflect.ValueOf(data.(Touple).Value)
+				val.SetMapIndex(keyVal, valueVal)
+			} else {
+				fmt.Println(dest)
+				lst := dest.([]T)
+				lst = append(lst, data.(T))
+				dest = lst
+
+			}
+		}
+
+		if predicate(item) {
+			store(item)
+		}
+
+	}
+
+	return ForEach[T](action, source)
+
+}
