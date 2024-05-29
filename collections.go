@@ -114,49 +114,50 @@ func Filter[T any](predicate Predicate[T], source []T, dest *[]T) *Builder[T] {
 // Returns an error if the operation fails.
 func ForEach[K any](action Action[K], src any) *Builder[K] {
 	var errBuilder *Builder[K]
-	count := -1
 
-	evaluate := func(item any) {
-		count++
-		defer func(item K) {
+	evaluate := func(index int, internaParam any) {
+		defer func(item any) {
 			if err := recover(); err != nil {
+				valueParametrized := item.(K)
 				errBuilder = &Builder[K]{
-					item: item,
+					item: valueParametrized,
 					err:  fmt.Errorf("Error: iterating within the forEach item:%v:  -->  %v", item, err),
 				}
 			}
-		}(item.(K))
-		action(count, item.(K))
+		}(internaParam)
+		action(index, internaParam.(K))
 
 	}
 
 	switch t := reflect.TypeOf(src); t.Kind() {
 	case reflect.Array:
-		for _, item := range src.([]K) {
+		for index, item := range src.([]K) {
 			if reflect.ValueOf(errBuilder).IsZero() {
 				break
 			}
 			if reflect.ValueOf(errBuilder).IsNil() {
 				break
 			}
-			evaluate(item)
+			evaluate(index, item)
 		}
 	case reflect.Slice:
-		for _, item := range src.([]K) {
+		for index, item := range src.([]K) {
 			if !reflect.ValueOf(errBuilder).IsZero() {
 				break
 			}
 			if !reflect.ValueOf(errBuilder).IsNil() {
 				break
 			}
-			evaluate(item)
+			evaluate(index, item)
 		}
 	case reflect.Map:
 		val := reflect.ValueOf(src)
+		count := -1
 		for _, key := range val.MapKeys() {
+			count ++
 			value := val.MapIndex(key)
 			touple := Touple{key, value}
-			evaluate(touple)
+			evaluate(count, touple)
 		}
 
 	default:
@@ -196,10 +197,15 @@ func isMap(elements any) bool {
 	return reflect.Map == t.Kind()
 }
 
+func calbackPredicate[T any](predicate Predicate[T], item T) bool {
+	return predicate(item)
+}
+
+
 func Filter2[T any](predicate Predicate[T], source any, dest any) *Builder[T] {
 
-	var action Action[T] = func(index int, item T) {
 
+	var action Action[T] = func(index int, item T) {
 		store := func(data any) {
 			if isMap(dest) {
 				val := reflect.ValueOf(dest)
@@ -211,16 +217,11 @@ func Filter2[T any](predicate Predicate[T], source any, dest any) *Builder[T] {
 				lst := dest.([]T)
 				lst = append(lst, data.(T))
 				dest = lst
-
 			}
 		}
-
 		if predicate(item) {
 			store(item)
 		}
-
 	}
-
 	return ForEach[T](action, source)
-
 }
