@@ -52,23 +52,6 @@ func TestMap(t *testing.T) {
 	}
 }
 
-func TestFilter(t *testing.T) {
-	source := []int{1, 2, 3, 4}
-	var dest []int
-	builder := Filter(func(n int) bool { return n%2 == 0 }, source, &dest)
-
-	if err := builder.Error(); err != nil {
-		t.Fatalf("Filter failed: %v", err)
-	}
-
-	expected := []int{2, 4}
-	for i, v := range dest {
-		if v != expected[i] {
-			t.Errorf("Filter result mismatch at index %d: got %v, want %v", i, v, expected[i])
-		}
-	}
-}
-
 func TestZip(t *testing.T) {
 	keys := []string{"a", "b", "c"}
 	values := []int{1, 2, 3}
@@ -166,7 +149,7 @@ type testsType[T any] struct {
 
 func (tt testsType[T]) runTest(testRunner *testing.T) {
 	testRunner.Run(tt.name, func(t *testing.T) {
-		got := Filter2(tt.args.predicate, tt.args.source, tt.args.dest)
+		got := Filter(tt.args.predicate, tt.args.source, tt.args.dest)
 		if tt.want != nil && !reflect.ValueOf(got).IsZero() {
 			got.WithErrorMessage(tt.args.errorFmt).Error()
 			//if err.Error() != tt.err.Error() {
@@ -175,12 +158,12 @@ func (tt testsType[T]) runTest(testRunner *testing.T) {
 		}
 	},
 	)
-} 
-
+}
 
 func isMale(tu testUser) bool {
 	return tu.male
 }
+
 func isMaleAsTouple(tu Touple) bool {
 	testUser := tu.Value.(testUser)
 	flag := testUser.male
@@ -191,20 +174,20 @@ func TestFilter2(t *testing.T) {
 
 	//femaleResult := []testUser{{name: "Sarah", mails: []string{}, age: 43}}
 	parent := map[string]testUser{"Kyle": {name: "Kyle", secondName: "Risk", male: true, mails: []string{}, age: 43}}
-	
+
 	lstUsers := []testUser{}
+	mapUsers := map[string]testUser{}
 
 	testsType[testUser]{
-		name: "Filter dad from map of test user",
-		args: args[testUser]{isMale, errorFmt, generateTestCaseList(), &lstUsers}, 
-		want: parent, 
-		wantError: false, 
-		err: nil}.runTest(t)
+		name:      "Filter dad from map of test user",
+		args:      args[testUser]{isMale, errorFmt, generateTestCaseList(), &lstUsers},
+		want:      parent,
+		wantError: false,
+		err:       nil}.runTest(t)
 
-		mapUsers := map[string]testUser{}
 	testsType[Touple]{
 		name:      "Filter a Map",
-		args:      args[Touple]{isMaleAsTouple, errorFmtAsTouple, generateTestCaseMap(), &mapUsers},
+		args:      args[Touple]{isMaleAsTouple, errorFmtAsTouple, generateTestCaseMap(), mapUsers},
 		want:      nil,
 		wantError: false,
 		err:       nil,

@@ -47,11 +47,6 @@ type Builder[T any] struct {
 
 // Method to retrieve the error from the builder
 func (b *Builder[T]) Error() error {
-
-	flag := b.err == nil
-
-	fmt.Println(flag)
-
 	return b.err
 }
 
@@ -69,7 +64,7 @@ func (b *Builder[T]) WithErrorMessage(fn ErrorFormatter[T]) *Builder[T] {
 // T - the type of the elements in the source collection.
 // mapper - the function that transforms each element.
 // source - the input collection of elements.
-// dest - the output collection where the mapped elements are stored.
+// dest - the output collection where the mapped elements are stored; should be a pointer to a slice or a map (depending on the source).
 // Returns an error if the operation fails.
 func Map[T any](mapper Mapper[T], source []T, dest *[]any) *Builder[T] {
 	b := &Builder[T]{}
@@ -81,28 +76,6 @@ func Map[T any](mapper Mapper[T], source []T, dest *[]any) *Builder[T] {
 			}
 		}(item)
 		*dest = append(*dest, mapper(item))
-	}
-	return b
-}
-
-// Filter applies a Predicate function to each element in the source collection and stores the elements that satisfy the predicate in the dest collection.
-// T - the type of the elements in the source collection.
-// predicate - the function that tests each element.
-// source - the input collection of elements.
-// dest - the output collection where the filtered elements are stored.
-// Returns an error if the operation fails.
-func Filter[T any](predicate Predicate[T], source []T, dest *[]T) *Builder[T] {
-	b := &Builder[T]{}
-	for _, item := range source {
-		defer func(i T) {
-			if r := recover(); r != nil {
-				b.err = fmt.Errorf("error filtering item: %v", r)
-				b.item = i
-			}
-		}(item)
-		if predicate(item) {
-			*dest = append(*dest, item)
-		}
 	}
 	return b
 }
@@ -132,7 +105,7 @@ func ForEach[K any](action Action[K], src any) *Builder[K] {
 		for _, key := range val.MapKeys() {
 			count++
 			value := val.MapIndex(key)
-			touple := Touple{key, value}
+			touple := Touple{key.Interface(), value.Interface()}
 			evaluate(count, touple)
 		}
 	} else {
@@ -174,11 +147,19 @@ func Zip[K comparable, V any](keys []K, values []V, result map[K]V) *Builder[K] 
 	return b
 }
 
+// isMap checks if the given element is of map type.
+// elements - the element to check.
+// Returns true if the element is a map, false otherwise.
 func isMap(elements any) bool {
 	t := reflect.TypeOf(elements)
 	return reflect.Map == t.Kind()
 }
 
+// store inserts data into the destination collection, which can be either a map or a slice.
+// data - the data to be inserted. If dest is a map, data should be of type Touple with Key and Value fields.
+// dest - the destination collection where the data will be stored; should be a map or a pointer to a slice.
+// If dest is a map, data.(Touple).Key is used as the key and data.(Touple).Value is used as the value.
+// If dest is a slice, data is appended to the slice.
 func store(data any, dest any) {
 	if isMap(dest) {
 		val := reflect.ValueOf(dest)
@@ -193,12 +174,16 @@ func store(data any, dest any) {
 	}
 }
 
-func Filter2[T any](predicate Predicate[T], source any, dest any) *Builder[T] {
+// Filter applies a Predicate function to each element in the source collection and stores the elements that satisfy the predicate in the dest collection.
+// T - the type of the elements in the source collection.
+// predicate - the function that tests each element.
+// source - the input collection of elements.
+// dest - the output collection where the filtered elements are stored; should be a pointer to a slice or a map (depending on the source).
+// Returns an error if the operation fails.
+func Filter[T any](predicate Predicate[T], source any, dest any) *Builder[T] {
 	var action Action[T] = func(index int, item T) {
 		if predicate(item) {
-			fmt.Println(dest)
 			store(item, dest)
-			fmt.Println(dest)
 		}
 	}
 	return ForEach[T](action, source)
