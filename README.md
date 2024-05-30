@@ -5,51 +5,132 @@
 
 # go-collection <img align="right" width="60" height="100" src="resources/gopher.jpg">
 
-go-collection provides some types and methods to make easy work with collecctions. 
 
-## Installation
 
-Use the netst go command to download the lib:
+The `go-collection` package provides a set of utility functions for working with collections (slices and maps) in Go. It includes functions for mapping, filtering, zipping, and performing actions on collections.
 
-```bash
-go get github.com/jose78/go-collection
-```
+Installation
+------------
 
-## Usage
-This is a simple example of how to use the foreach method in lists: 
-```go
-package main
+To install the package, use:
 
-import (
-	"fmt"
+    go get github.com/jose78/go-collection
 
-	col "github.com/jose78/go-collection/collections"
-)
+Usage
+-----
 
-type user struct {
-	name string
-	age  int
-	id   int
-}
+### Types
 
-func main() {
-	newList := col.ParseItemsToList(user{"Alvaro", 6, 1}, user{"Sofia", 3, 2})
-	newList = append(newList, user{"Mon", 0, 3})
+#### Touple
 
-	newList.Foreach(simpleLoop)
-}
+Represents a key-value pair with a generic key and value.
 
-var simpleLoop col.FnForeachList = func(mapper interface{}, index int) {
-	fmt.Printf("%d.- item:%v\n", index, mapper)
-}
-```
+    type Touple struct {
+        Key   any // Key is the key of the key-value pair.
+        Value any // Value is the value of the key-value pair.
+    }
 
-You can find a lot of examples in [wiki](https://github.com/jose78/go-collection/wiki) section.
+#### Mapper
 
-## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+Represents a function that takes a value of any type `T` and returns a value of any type.
 
-Please make sure to update tests as appropriate.
+    type Mapper[T any] func(T) any
 
-## License
-[MIT](https://choosealicense.com/licenses/mit/)
+#### Predicate
+
+Represents a function that takes a value of any type `T` and returns a boolean. It is used to test whether the input value satisfies a certain condition.
+
+    type Predicate[T any] func(T) bool
+
+#### Action
+
+Represents a function that takes an index and a value of any type `T`. It is intended to be used in an iteration context, such as a forEach function, where it will be executed for each element in a collection.
+
+    type Action[T any] func(int, T)
+
+#### KeySelector
+
+Represents a function that takes a key of type `K` and returns a `Touple` with the key and a value of type `V`. The key must be of a comparable type.
+
+    type KeySelector[K comparable, V any] func(K) Touple
+
+#### Builder
+
+A struct with an error and the item that caused the error.
+
+    type Builder[T any] struct {
+        err  error
+        item T
+    }
+    
+    func (b *Builder[T]) Error() error {
+        return b.err
+    }
+    
+    type ErrorFormatter[T any] func(T) error // New type for error formatting
+    
+    func (b *Builder[T]) WithErrorMessage(fn ErrorFormatter[T]) *Builder[T] {
+        if fn != nil {
+            b.err = fn(b.item)
+        }
+        return b
+    }
+
+### Functions
+
+#### Map
+
+Applies a `Mapper` function to each element in the source collection and stores the result in the dest collection.
+
+    func Map[T any](mapper Mapper[T], source []T, dest *[]any) *Builder[T]
+
+#### ForEach
+
+Applies an `Action` function to each element in the source collection.
+
+    func ForEach[K any](action Action[K], src any) *Builder[K]
+
+#### Zip
+
+Combines two slices into a map, using elements from the keys slice as keys and elements from the values slice as values.
+
+    func Zip[K comparable, V any](keys []K, values []V, result map[K]V) *Builder[K]
+
+#### isMap
+
+Checks if the given element is of map type.
+
+    func isMap(elements any) bool
+
+#### store
+
+Inserts data into the destination collection, which can be either a map or a slice.
+
+    func store(data any, dest any)
+
+#### Filter
+
+Applies a `Predicate` function to each element in the source collection and stores the elements that satisfy the predicate in the dest collection.
+
+    func Filter[T any](predicate Predicate[T], source any, dest any) *Builder[T]
+
+Example
+-------
+
+Here is an example of how to use the `go-collection` package:
+
+    package main
+    
+    import (
+        "fmt"
+        "go-collection"
+    )
+    
+    func main() {
+        // Example using Map
+        source := []int{1, 2, 3, 4, 5}
+        dest := []any{}
+        mapper := func(x int) any { return x * 2 }
+        go-collection.Map(mapper, source, &dest)
+        fmt.Println(dest)
+    }
