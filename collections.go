@@ -8,7 +8,7 @@ import (
 
 // Touple represents a key-value pair with a generic key and value.
 // The key must be of a comparable type, allowing it to be used in maps or
-// other data structures that require comparison operations.
+// other dest structures that require comparison operations.
 // The value can be of any type.
 //
 // K - the type of the key, which must be comparable.
@@ -114,7 +114,6 @@ func Filter[T any](predicate Predicate[T], source []T, dest *[]T) *Builder[T] {
 // Returns an error if the operation fails.
 func ForEach[K any](action Action[K], src any) *Builder[K] {
 	var errBuilder *Builder[K]
-
 	evaluate := func(index int, internaParam any) {
 		defer func(item any) {
 			if err := recover(); err != nil {
@@ -126,21 +125,17 @@ func ForEach[K any](action Action[K], src any) *Builder[K] {
 			}
 		}(internaParam)
 		action(index, internaParam.(K))
-
 	}
-
-	switch t := reflect.TypeOf(src); t.Kind() {
-	case reflect.Array:
-		for index, item := range src.([]K) {
-			if reflect.ValueOf(errBuilder).IsZero() {
-				break
-			}
-			if reflect.ValueOf(errBuilder).IsNil() {
-				break
-			}
-			evaluate(index, item)
+	if isMap(src) {
+		val := reflect.ValueOf(src)
+		count := -1
+		for _, key := range val.MapKeys() {
+			count++
+			value := val.MapIndex(key)
+			touple := Touple{key, value}
+			evaluate(count, touple)
 		}
-	case reflect.Slice:
+	} else {
 		for index, item := range src.([]K) {
 			if !reflect.ValueOf(errBuilder).IsZero() {
 				break
@@ -150,20 +145,7 @@ func ForEach[K any](action Action[K], src any) *Builder[K] {
 			}
 			evaluate(index, item)
 		}
-	case reflect.Map:
-		val := reflect.ValueOf(src)
-		count := -1
-		for _, key := range val.MapKeys() {
-			count ++
-			value := val.MapIndex(key)
-			touple := Touple{key, value}
-			evaluate(count, touple)
-		}
-
-	default:
-		panic(fmt.Sprintf("El tipo de 'src' debe ser lista o map, no %T", src))
 	}
-
 	return errBuilder
 }
 
@@ -197,30 +179,26 @@ func isMap(elements any) bool {
 	return reflect.Map == t.Kind()
 }
 
-func calbackPredicate[T any](predicate Predicate[T], item T) bool {
-	return predicate(item)
+func store(data any, dest any) {
+	if isMap(dest) {
+		val := reflect.ValueOf(dest)
+		keyVal := reflect.ValueOf(data.(Touple).Key)
+		valueVal := reflect.ValueOf(data.(Touple).Value)
+		val.SetMapIndex(keyVal, valueVal)
+	} else {
+		sliceVal := reflect.ValueOf(dest).Elem()
+		elemVal := reflect.ValueOf(data)
+		result := reflect.Append(sliceVal, elemVal)
+		sliceVal.Set(result)
+	}
 }
 
-
 func Filter2[T any](predicate Predicate[T], source any, dest any) *Builder[T] {
-
-
 	var action Action[T] = func(index int, item T) {
-		store := func(data any) {
-			if isMap(dest) {
-				val := reflect.ValueOf(dest)
-				keyVal := reflect.ValueOf(data.(Touple).Key)
-				valueVal := reflect.ValueOf(data.(Touple).Value)
-				val.SetMapIndex(keyVal, valueVal)
-			} else {
-				fmt.Println(dest)
-				lst := dest.([]T)
-				lst = append(lst, data.(T))
-				dest = lst
-			}
-		}
 		if predicate(item) {
-			store(item)
+			fmt.Println(dest)
+			store(item, dest)
+			fmt.Println(dest)
 		}
 	}
 	return ForEach[T](action, source)
