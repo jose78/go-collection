@@ -14,7 +14,7 @@ Installation
 
 To install the package, use:
 
-```go
+```bash
     go get github.com/jose78/go-collection
 ```
 
