@@ -67,17 +67,11 @@ func (b *Builder[T]) WithErrorMessage(fn ErrorFormatter[T]) *Builder[T] {
 // dest - the output collection where the mapped elements are stored; should be a pointer to a slice or a map (depending on the source).
 // Returns an error if the operation fails.
 func Map[T any](mapper Mapper[T], source []T, dest *[]any) *Builder[T] {
-	b := &Builder[T]{}
-	for _, item := range source {
-		defer func(i T) {
-			if r := recover(); r != nil {
-				b.err = fmt.Errorf("error mapping item: %v", r)
-				b.item = i
-			}
-		}(item)
-		*dest = append(*dest, mapper(item))
+	var action Action[T] = func(index int, item T) {
+		resultMap := mapper(item)
+		store(resultMap, dest)
 	}
-	return b
+	return ForEach[T](action, source)
 }
 
 // ForEach applies an Action function to each element in the source collection.
