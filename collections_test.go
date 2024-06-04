@@ -147,14 +147,14 @@ type testsType[T any] struct {
 	err       error
 }
 
-func (tt testsType[T]) runTest(testRunner *testing.T) {
+func (tt testsType[T]) runTestFilter(testRunner *testing.T) {
 	testRunner.Run(tt.name, func(t *testing.T) {
 		got := Filter(tt.args.predicate, tt.args.source, tt.args.dest)
-		if tt.want != nil && !reflect.ValueOf(got).IsZero() {
-			got.WithErrorMessage(tt.args.errorFmt).Error()
-			//if err.Error() != tt.err.Error() {
-			//	t.Errorf("Each() = %v, want %v", got, tt.want)
-			//}
+		if !tt.wantError && got != nil {
+			t.Errorf("filter() = %v, wantError %v", got, tt.wantError)
+		}
+		if !tt.wantError && !reflect.DeepEqual(tt.want, tt.args.dest) {
+			t.Errorf("Filter() = %v, want %v", tt.args.dest, tt.want)
 		}
 	},
 	)
@@ -172,28 +172,27 @@ func isMaleAsTouple(tu Touple) bool {
 
 func TestFilter2(t *testing.T) {
 
-	//femaleResult := []testUser{{name: "Sarah", mails: []string{}, age: 43}}
-	parent := map[string]testUser{"Kyle": {name: "Kyle", secondName: "Risk", male: true, mails: []string{}, age: 43}}
+	resultListFiltered := []testUser{
+		{name: "John", secondName: "Connor", mails: []string{}, age: 10, male: true},
+		{name: "Kyle", secondName: "Risk", mails: []string{}, age: 43, male: true},
+	}
+	resultMapFiltered := map[string]testUser{"John": {name: "John", secondName: "Connor", mails: []string{}, age: 10, male: true}, "Kyle": {name: "Kyle", secondName: "Risk", mails: []string{}, age: 43, male: true}}
 
 	lstUsers := []testUser{}
 	mapUsers := map[string]testUser{}
 
 	testsType[testUser]{
-		name:      "Filter dad from map of test user",
+		name:      "Filter male from list of test user",
 		args:      args[testUser]{isMale, errorFmt, generateTestCaseList(), &lstUsers},
-		want:      parent,
+		want:      resultListFiltered,
 		wantError: false,
-		err:       nil}.runTest(t)
+		err:       nil}.runTestFilter(t)
 
 	testsType[Touple]{
-		name:      "Filter a Map",
+		name:      "Filter male from map of test user",
 		args:      args[Touple]{isMaleAsTouple, errorFmtAsTouple, generateTestCaseMap(), mapUsers},
-		want:      nil,
+		want:      resultMapFiltered,
 		wantError: false,
 		err:       nil,
-	}.runTest(t)
-	fmt.Println("lstUsers")
-	fmt.Println(lstUsers)
-	fmt.Println("mapUsers")
-	fmt.Println(mapUsers)
+	}.runTestFilter(t)
 }
