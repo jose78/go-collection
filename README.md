@@ -147,7 +147,7 @@ Here is an example of how to use the `go-collection` package:
     
     import (
         "fmt"
-        "go-collection"
+        "github.com/jose78/go-collection"
     )
     
     func main() {
