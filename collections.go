@@ -37,7 +37,7 @@ type Action[T any] func(int, T)
 // The key must be of a comparable type.
 // K - the type of the key, which must be comparable.
 // V - the type of the value.
-type KeySelector[K comparable, V any] func(K) Touple
+type KeySelector[K any] func(K) Touple
 
 // Builder struct with an error and the item that caused the error
 type Builder[T any] struct {
@@ -60,25 +60,6 @@ func (b *Builder[T]) WithErrorMessage(fn ErrorFormatter[T]) *Builder[T] {
 	return b
 }
 
-// Map applies a Mapper function to each element in the source collection and stores the result in the dest collection.
-// T - the type of the elements in the source collection.
-// mapper - the function that transforms each element.
-// source - the input collection of elements.
-// dest - the output collection where the mapped elements are stored; should be a pointer to a slice or a map (depending on the source).
-// Returns an error if the operation fails.
-func Map[T any](mapper Mapper[T], source []T, dest *[]any) *Builder[T] {
-	b := &Builder[T]{}
-	for _, item := range source {
-		defer func(i T) {
-			if r := recover(); r != nil {
-				b.err = fmt.Errorf("error mapping item: %v", r)
-				b.item = i
-			}
-		}(item)
-		*dest = append(*dest, mapper(item))
-	}
-	return b
-}
 
 // ForEach applies an Action function to each element in the source collection.
 // T - the type of the elements in the source collection.
@@ -185,6 +166,31 @@ func Filter[T any](predicate Predicate[T], source any, dest any) *Builder[T] {
 		if predicate(item) {
 			store(item, dest)
 		}
+	}
+	return ForEach[T](action, source)
+}
+
+
+// Map applies a Mapper function to each element in the source collection and stores the result in the dest collection.
+// T - the type of the elements in the source collection.
+// mapper - the function that transforms each element.
+// source - the input collection of elements.
+// dest - the output collection where the mapped elements are stored; should be a pointer to a slice or a map (depending on the source).
+// Returns an error if the operation fails.
+func Map[T any](mapper Mapper[T], source any, dest any) *Builder[T] {
+	var action Action[T] = func(index int, item T) {
+		result := mapper(item)
+		store(result, dest)
+	}
+	return ForEach[T](action, source)
+}
+
+
+func GroupBy[T any](keySelector KeySelector[T], source any, dest any) *Builder[T] {
+	var action Action[T] = func(index int, item T) {
+		result := keySelector(item)
+		touple := Touple{result, []T{item}}
+		store(touple, dest)
 	}
 	return ForEach[T](action, source)
 }

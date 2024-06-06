@@ -3,6 +3,7 @@ package gocollection
 import (
 	"fmt"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -26,6 +27,10 @@ func generateTestCaseMap() map[string]testUser {
 	return result
 }
 
+func errorFmtAsString(user string ) error {
+	return fmt.Errorf("KO")
+}
+
 func errorFmtAsTouple(user Touple) error {
 	return fmt.Errorf("KO")
 }
@@ -34,23 +39,7 @@ func errorFmt(user testUser) error {
 	return fmt.Errorf("KO")
 }
 
-// Test functions
-func TestMap(t *testing.T) {
-	source := []int{1, 2, 3, 4}
-	var dest []any
-	builder := Map(func(n int) any { return n * 2 }, source, &dest)
 
-	if err := builder.Error(); err != nil {
-		t.Fatalf("Map failed: %v", err)
-	}
-
-	expected := []any{2, 4, 6, 8}
-	for i, v := range dest {
-		if v != expected[i] {
-			t.Errorf("Map result mismatch at index %d: got %v, want %v", i, v, expected[i])
-		}
-	}
-}
 
 func TestZip(t *testing.T) {
 	keys := []string{"a", "b", "c"}
@@ -133,28 +122,30 @@ func TestForEach(t *testing.T) {
 	}
 }
 
-type args[T any] struct {
+
+
+type argsFilter[T any] struct {
 	predicate Predicate[T]
 	errorFmt  ErrorFormatter[T]
 	source    any
 	dest      any
 }
-type testsType[T any] struct {
+type testsTypeFilter[T any] struct {
 	name      string
-	args      args[T]
+	args      argsFilter[T]
 	want      any
 	wantError bool
 	err       error
 }
 
-func (tt testsType[T]) runTest(testRunner *testing.T) {
+func (tt testsTypeFilter[T]) runTestFilter(testRunner *testing.T) {
 	testRunner.Run(tt.name, func(t *testing.T) {
 		got := Filter(tt.args.predicate, tt.args.source, tt.args.dest)
-		if tt.want != nil && !reflect.ValueOf(got).IsZero() {
-			got.WithErrorMessage(tt.args.errorFmt).Error()
-			//if err.Error() != tt.err.Error() {
-			//	t.Errorf("Each() = %v, want %v", got, tt.want)
-			//}
+		if !tt.wantError && got != nil {
+			t.Errorf("filter() = %v, wantError %v", got, tt.wantError)
+		}
+		if !tt.wantError && !reflect.DeepEqual(tt.want, tt.args.dest) {
+			t.Errorf("Filter() = %v, want %v", tt.args.dest, tt.want)
 		}
 	},
 	)
@@ -172,28 +163,104 @@ func isMaleAsTouple(tu Touple) bool {
 
 func TestFilter2(t *testing.T) {
 
-	//femaleResult := []testUser{{name: "Sarah", mails: []string{}, age: 43}}
-	parent := map[string]testUser{"Kyle": {name: "Kyle", secondName: "Risk", male: true, mails: []string{}, age: 43}}
+	resultListFiltered := []testUser{
+		{name: "John", secondName: "Connor", mails: []string{}, age: 10, male: true},
+		{name: "Kyle", secondName: "Risk", mails: []string{}, age: 43, male: true},
+	}
+	resultMapFiltered := map[string]testUser{"John": {name: "John", secondName: "Connor", mails: []string{}, age: 10, male: true}, "Kyle": {name: "Kyle", secondName: "Risk", mails: []string{}, age: 43, male: true}}
 
 	lstUsers := []testUser{}
 	mapUsers := map[string]testUser{}
 
-	testsType[testUser]{
-		name:      "Filter dad from map of test user",
-		args:      args[testUser]{isMale, errorFmt, generateTestCaseList(), &lstUsers},
-		want:      parent,
+	testsTypeFilter[testUser]{
+		name:      "Filter male from list of test user",
+		args:      argsFilter[testUser]{isMale, errorFmt, generateTestCaseList(), &lstUsers},
+		want:      &resultListFiltered,
 		wantError: false,
-		err:       nil}.runTest(t)
+		err:       nil}.runTestFilter(t)
 
-	testsType[Touple]{
-		name:      "Filter a Map",
-		args:      args[Touple]{isMaleAsTouple, errorFmtAsTouple, generateTestCaseMap(), mapUsers},
-		want:      nil,
+	testsTypeFilter[Touple]{
+		name:      "Filter male from map of test user",
+		args:      argsFilter[Touple]{isMaleAsTouple, errorFmtAsTouple, generateTestCaseMap(), mapUsers},
+		want:      resultMapFiltered,
 		wantError: false,
 		err:       nil,
-	}.runTest(t)
-	fmt.Println("lstUsers")
-	fmt.Println(lstUsers)
-	fmt.Println("mapUsers")
-	fmt.Println(mapUsers)
+	}.runTestFilter(t)
+}
+
+
+
+type argsMap[T any] struct {
+	mapper Mapper[T]
+	errorFmt  ErrorFormatter[T]
+	source    any
+	dest      any
+}
+type testsTypeMap[T any] struct {
+	name      string
+	args      argsMap[T]
+	want      any
+	wantError bool
+	err       error
+}
+
+func (tt testsTypeMap[T]) runTestMap(testRunner *testing.T) {
+	testRunner.Run(tt.name, func(t *testing.T) {
+		got := Map(tt.args.mapper, tt.args.source, tt.args.dest)
+		if !tt.wantError && got != nil {
+			t.Errorf("Map() KO = %v, wantError %v", got, tt.wantError)
+		}
+		if !tt.wantError && !reflect.DeepEqual(tt.want, tt.args.dest) {
+			t.Errorf("Map() = %v, want %v", tt.args.dest, tt.want)
+		}
+	},
+	)
+}
+
+var mapperToNamesFromMap Mapper[Touple] = func(s Touple) any {
+	user := s.Value.(testUser)
+	return fmt.Sprintf("%s %s", user.name, user.secondName)
+}
+
+var mapperToNamesFromList Mapper[testUser] = func(s testUser) any {
+	return fmt.Sprintf("%s %s", s.name, s.secondName)
+}
+
+var mapperSplitName Mapper[string] = func(s string) any {
+	nameSplited := strings.Split(s, " ")
+	return Touple{nameSplited[0], nameSplited[1]}
+}
+
+// Test functions
+func TestMap(t *testing.T) {
+	result:= []string{"John Connor", "Sarah Connor","Kyle Risk"}
+	lstUsersFromList := []string{}
+	lstUsersFromMap := []string{}
+	names := map[string]string{}
+
+	resulNames := map[string]string{"Sarah": "Connor", "Kyle": "Risk" , "John": "Connor"}
+
+	testsTypeMap[testUser]{
+		name:      "Filter male from list of test user",
+		args:      argsMap[testUser]{mapperToNamesFromList, errorFmt, generateTestCaseList(), &lstUsersFromList},
+		want:      &result,
+		wantError: false,
+		err:       nil}.runTestMap(t)
+
+	testsTypeMap[Touple]{
+		name:      "Filter male from map of test user",
+		args:      argsMap[Touple]{mapperToNamesFromMap, errorFmtAsTouple, generateTestCaseMap(), &lstUsersFromMap},
+		want:      &result,
+		wantError: false,
+		err:       nil,
+	}.runTestMap(t)
+
+	testsTypeMap[string]{
+		name:      "Map list of names and seconds names to map ",
+		args:      argsMap[string]{mapperSplitName, errorFmtAsString, lstUsersFromMap, names},
+		want:      resulNames,
+		wantError: false,
+		err:       nil,
+	}.runTestMap(t)
+
 }
