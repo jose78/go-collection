@@ -39,8 +39,6 @@ func errorFmt(user testUser) error {
 	return fmt.Errorf("KO")
 }
 
-
-
 func TestZip(t *testing.T) {
 	keys := []string{"a", "b", "c"}
 	values := []int{1, 2, 3}
