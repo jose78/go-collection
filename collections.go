@@ -37,7 +37,7 @@ type Action[T any] func(int, T)
 // The key must be of a comparable type.
 // K - the type of the key, which must be comparable.
 // V - the type of the value.
-type KeySelector[K comparable, V any] func(K) Touple
+type KeySelector[K any] func(K) Touple
 
 // Builder struct with an error and the item that caused the error
 type Builder[T any] struct {
@@ -179,8 +179,18 @@ func Filter[T any](predicate Predicate[T], source any, dest any) *Builder[T] {
 // Returns an error if the operation fails.
 func Map[T any](mapper Mapper[T], source any, dest any) *Builder[T] {
 	var action Action[T] = func(index int, item T) {
-		resultMap := mapper(item)
-		store(resultMap, dest)
+		result := mapper(item)
+		store(result, dest)
+	}
+	return ForEach[T](action, source)
+}
+
+
+func GroupBy[T any](keySelector KeySelector[T], source any, dest any) *Builder[T] {
+	var action Action[T] = func(index int, item T) {
+		result := keySelector(item)
+		touple := Touple{result, []T{item}}
+		store(touple, dest)
 	}
 	return ForEach[T](action, source)
 }
