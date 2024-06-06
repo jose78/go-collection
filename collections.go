@@ -60,19 +60,6 @@ func (b *Builder[T]) WithErrorMessage(fn ErrorFormatter[T]) *Builder[T] {
 	return b
 }
 
-// Map applies a Mapper function to each element in the source collection and stores the result in the dest collection.
-// T - the type of the elements in the source collection.
-// mapper - the function that transforms each element.
-// source - the input collection of elements.
-// dest - the output collection where the mapped elements are stored; should be a pointer to a slice or a map (depending on the source).
-// Returns an error if the operation fails.
-func Map[T any](mapper Mapper[T], source []T, dest *[]any) *Builder[T] {
-	var action Action[T] = func(index int, item T) {
-		resultMap := mapper(item)
-		store(resultMap, dest)
-	}
-	return ForEach[T](action, source)
-}
 
 // ForEach applies an Action function to each element in the source collection.
 // T - the type of the elements in the source collection.
@@ -179,6 +166,21 @@ func Filter[T any](predicate Predicate[T], source any, dest any) *Builder[T] {
 		if predicate(item) {
 			store(item, dest)
 		}
+	}
+	return ForEach[T](action, source)
+}
+
+
+// Map applies a Mapper function to each element in the source collection and stores the result in the dest collection.
+// T - the type of the elements in the source collection.
+// mapper - the function that transforms each element.
+// source - the input collection of elements.
+// dest - the output collection where the mapped elements are stored; should be a pointer to a slice or a map (depending on the source).
+// Returns an error if the operation fails.
+func Map[T any](mapper Mapper[T], source any, dest any) *Builder[T] {
+	var action Action[T] = func(index int, item T) {
+		resultMap := mapper(item)
+		store(resultMap, dest)
 	}
 	return ForEach[T](action, source)
 }
