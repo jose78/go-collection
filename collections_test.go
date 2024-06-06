@@ -3,6 +3,7 @@ package gocollection
 import (
 	"fmt"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -24,6 +25,10 @@ func generateTestCaseMap() map[string]testUser {
 		result[item.name] = item
 	}
 	return result
+}
+
+func errorFmtAsString(user string ) error {
+	return fmt.Errorf("KO")
 }
 
 func errorFmtAsTouple(user Touple) error {
@@ -221,15 +226,19 @@ var mapperToNamesFromList Mapper[testUser] = func(s testUser) any {
 	return fmt.Sprintf("%s %s", s.name, s.secondName)
 }
 
+var mapperSplitName Mapper[string] = func(s string) any {
+	nameSplited := strings.Split(s, " ")
+	return Touple{nameSplited[0], nameSplited[1]}
+}
+
 // Test functions
 func TestMap(t *testing.T) {
-
-
 	result:= []string{"John Connor", "Sarah Connor","Kyle Risk"}
-
-
 	lstUsersFromList := []string{}
 	lstUsersFromMap := []string{}
+	names := map[string]string{}
+
+	resulNames := map[string]string{"Sarah": "Connor", "Kyle": "Risk" , "John": "Connor"}
 
 	testsTypeMap[testUser]{
 		name:      "Filter male from list of test user",
@@ -240,11 +249,18 @@ func TestMap(t *testing.T) {
 
 	testsTypeMap[Touple]{
 		name:      "Filter male from map of test user",
-		args:      argsMap[Touple]{mapperToNamesFromMap, errorFmtAsTouple, generateTestCaseMap(), lstUsersFromMap},
-		want:      result,
+		args:      argsMap[Touple]{mapperToNamesFromMap, errorFmtAsTouple, generateTestCaseMap(), &lstUsersFromMap},
+		want:      &result,
 		wantError: false,
 		err:       nil,
 	}.runTestMap(t)
 
+	testsTypeMap[string]{
+		name:      "Map list of names and seconds names to map ",
+		args:      argsMap[string]{mapperSplitName, errorFmtAsString, lstUsersFromMap, names},
+		want:      resulNames,
+		wantError: false,
+		err:       nil,
+	}.runTestMap(t)
 
 }
