@@ -7,6 +7,12 @@ import (
 	"testing"
 )
 
+var (
+	john  = testUser{name: "John", secondName: "Connor", mails: []string{}, age: 10, male: true}
+	sarah = testUser{name: "Sarah", secondName: "Connor", mails: []string{}, age: 43}
+	kyle  = testUser{name: "Kyle", secondName: "Risk", male: true, mails: []string{}, age: 43}
+)
+
 type testUser struct {
 	name       string
 	secondName string
@@ -16,7 +22,7 @@ type testUser struct {
 }
 
 func generateTestCaseList() []testUser {
-	return []testUser{{name: "John", secondName: "Connor", mails: []string{}, age: 10, male: true}, {name: "Sarah", secondName: "Connor", mails: []string{}, age: 43}, {name: "Kyle", secondName: "Risk", male: true, mails: []string{}, age: 43}}
+	return []testUser{john, sarah, kyle}
 }
 
 func generateTestCaseMap() map[string]testUser {
@@ -27,7 +33,7 @@ func generateTestCaseMap() map[string]testUser {
 	return result
 }
 
-func errorFmtAsString(user string ) error {
+func errorFmtAsString(user string) error {
 	return fmt.Errorf("KO")
 }
 
@@ -38,8 +44,6 @@ func errorFmtAsTouple(user Touple) error {
 func errorFmt(user testUser) error {
 	return fmt.Errorf("KO")
 }
-
-
 
 func TestZip(t *testing.T) {
 	keys := []string{"a", "b", "c"}
@@ -122,8 +126,6 @@ func TestForEach(t *testing.T) {
 	}
 }
 
-
-
 type argsFilter[T any] struct {
 	predicate Predicate[T]
 	errorFmt  ErrorFormatter[T]
@@ -164,10 +166,10 @@ func isMaleAsTouple(tu Touple) bool {
 func TestFilter2(t *testing.T) {
 
 	resultListFiltered := []testUser{
-		{name: "John", secondName: "Connor", mails: []string{}, age: 10, male: true},
-		{name: "Kyle", secondName: "Risk", mails: []string{}, age: 43, male: true},
+		john,
+		kyle,
 	}
-	resultMapFiltered := map[string]testUser{"John": {name: "John", secondName: "Connor", mails: []string{}, age: 10, male: true}, "Kyle": {name: "Kyle", secondName: "Risk", mails: []string{}, age: 43, male: true}}
+	resultMapFiltered := map[string]testUser{"John": john, "Kyle": kyle}
 
 	lstUsers := []testUser{}
 	mapUsers := map[string]testUser{}
@@ -188,13 +190,11 @@ func TestFilter2(t *testing.T) {
 	}.runTestFilter(t)
 }
 
-
-
 type argsMap[T any] struct {
-	mapper Mapper[T]
-	errorFmt  ErrorFormatter[T]
-	source    any
-	dest      any
+	mapper   Mapper[T]
+	errorFmt ErrorFormatter[T]
+	source   any
+	dest     any
 }
 type testsTypeMap[T any] struct {
 	name      string
@@ -233,12 +233,12 @@ var mapperSplitName Mapper[string] = func(s string) any {
 
 // Test functions
 func TestMap(t *testing.T) {
-	result:= []string{"John Connor", "Sarah Connor","Kyle Risk"}
+	result := []string{"John Connor", "Sarah Connor", "Kyle Risk"}
 	lstUsersFromList := []string{}
 	lstUsersFromMap := []string{}
 	names := map[string]string{}
 
-	resulNames := map[string]string{"Sarah": "Connor", "Kyle": "Risk" , "John": "Connor"}
+	resulNames := map[string]string{"Sarah": "Connor", "Kyle": "Risk", "John": "Connor"}
 
 	testsTypeMap[testUser]{
 		name:      "Filter male from list of test user",
@@ -262,5 +262,53 @@ func TestMap(t *testing.T) {
 		wantError: false,
 		err:       nil,
 	}.runTestMap(t)
+
+}
+
+type argsGroupBy[T any] struct {
+	groupBy  KeySelector[T]
+	errorFmt ErrorFormatter[T]
+	source   any
+	dest     any
+}
+type testsTypeGroupBy[T any] struct {
+	name      string
+	args      argsGroupBy[T]
+	want      any
+	wantError bool
+	err       error
+}
+
+func (tt testsTypeGroupBy[T]) runTestGroupBy(testRunner *testing.T) {
+	testRunner.Run(tt.name, func(t *testing.T) {
+		got := GroupBy(tt.args.groupBy, tt.args.source, tt.args.dest)
+		if !tt.wantError && got != nil {
+			t.Errorf("Map() KO = %v, wantError %v", got, tt.wantError)
+		}
+		if !tt.wantError && !reflect.DeepEqual(tt.want, tt.args.dest) {
+			t.Errorf("Map() = %v, want %v", tt.args.dest, tt.want)
+		}
+	},
+	)
+}
+
+var keySelectorBySex KeySelector[testUser] = func(tu testUser) any {
+	result := "female"
+	if tu.male {
+		result = "male"
+	}
+	return result
+}
+
+func TestGroupBy(t *testing.T) {
+
+	result := map[string][]testUser{"male": {john, kyle}, "female": {sarah}}
+
+	testsTypeGroupBy[testUser]{
+		name:      "Filter male from list of test user",
+		args:      argsGroupBy[testUser]{keySelectorBySex, errorFmt, generateTestCaseList(), map[string][]testUser{}},
+		want:      result,
+		wantError: false,
+		err:       nil}.runTestGroupBy(t)
 
 }

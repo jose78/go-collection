@@ -37,7 +37,7 @@ type Action[T any] func(int, T)
 // The key must be of a comparable type.
 // K - the type of the key, which must be comparable.
 // V - the type of the value.
-type KeySelector[K any] func(K) Touple
+type KeySelector[K any] func(K) any
 
 // Builder struct with an error and the item that caused the error
 type Builder[T any] struct {
@@ -146,7 +146,17 @@ func store(data any, dest any) {
 		val := reflect.ValueOf(dest)
 		keyVal := reflect.ValueOf(data.(Touple).Key)
 		valueVal := reflect.ValueOf(data.(Touple).Value)
-		val.SetMapIndex(keyVal, valueVal)
+		if val.MapIndex(keyVal).IsValid() {
+			existingValue := val.MapIndex(keyVal)
+			if existingValue.Kind() == reflect.Slice && valueVal.Kind() == reflect.Slice {
+				mergedValue := reflect.AppendSlice(existingValue, valueVal)
+				val.SetMapIndex(keyVal, mergedValue)
+			} else {
+				val.SetMapIndex(keyVal, valueVal)
+			}
+		} else {
+			val.SetMapIndex(keyVal, valueVal)
+		}
 	} else {
 		sliceVal := reflect.ValueOf(dest).Elem()
 		elemVal := reflect.ValueOf(data)
