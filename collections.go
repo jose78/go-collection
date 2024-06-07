@@ -195,6 +195,32 @@ func Map[T any](mapper Mapper[T], source any, dest any) *Builder[T] {
 	return ForEach[T](action, source)
 }
 
+// GroupBy groups elements from the source collection based on a specified key selector function
+// and stores the results in the destination. It returns a Builder which can be used for further
+// processing of the grouped data.
+//
+// Parameters:
+// - keySelector: A function that extracts the key from each element in the source collection.
+// - source: The collection of elements to be grouped.
+// - dest: The destination where the grouped elements will be stored.
+//
+// Returns:
+// - *Builder[T]: A Builder object for further processing of the grouped data.
+//
+// Example:
+//   type Person struct {
+//       Name string
+//       Age  int
+//   }
+//   
+//   people := []Person{
+//       {Name: "Alice", Age: 30},
+//       {Name: "Bob", Age: 25},
+//       {Name: "Charlie", Age: 30},
+//   }
+//   
+//   result := GroupBy(func(p Person) int { return p.Age }, people, dest)
+//   // This will group the people by age and store the results in 'dest'.
 
 func GroupBy[T any](keySelector KeySelector[T], source any, dest any) *Builder[T] {
 	var action Action[T] = func(index int, item T) {
