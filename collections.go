@@ -37,7 +37,7 @@ type Action[T any] func(int, T)
 // The key must be of a comparable type.
 // K - the type of the key, which must be comparable.
 // V - the type of the value.
-type KeySelector[K comparable, V any] func(K) Touple
+type KeySelector[K any] func(K) any
 
 // Builder struct with an error and the item that caused the error
 type Builder[T any] struct {
@@ -146,7 +146,17 @@ func store(data any, dest any) {
 		val := reflect.ValueOf(dest)
 		keyVal := reflect.ValueOf(data.(Touple).Key)
 		valueVal := reflect.ValueOf(data.(Touple).Value)
-		val.SetMapIndex(keyVal, valueVal)
+		if val.MapIndex(keyVal).IsValid() {
+			existingValue := val.MapIndex(keyVal)
+			if existingValue.Kind() == reflect.Slice && valueVal.Kind() == reflect.Slice {
+				mergedValue := reflect.AppendSlice(existingValue, valueVal)
+				val.SetMapIndex(keyVal, mergedValue)
+			} else {
+				val.SetMapIndex(keyVal, valueVal)
+			}
+		} else {
+			val.SetMapIndex(keyVal, valueVal)
+		}
 	} else {
 		sliceVal := reflect.ValueOf(dest).Elem()
 		elemVal := reflect.ValueOf(data)
@@ -179,8 +189,44 @@ func Filter[T any](predicate Predicate[T], source any, dest any) *Builder[T] {
 // Returns an error if the operation fails.
 func Map[T any](mapper Mapper[T], source any, dest any) *Builder[T] {
 	var action Action[T] = func(index int, item T) {
-		resultMap := mapper(item)
-		store(resultMap, dest)
+		result := mapper(item)
+		store(result, dest)
+	}
+	return ForEach[T](action, source)
+}
+
+// GroupBy groups elements from the source collection based on a specified key selector function
+// and stores the results in the destination. It returns a Builder which can be used for further
+// processing of the grouped data.
+//
+// Parameters:
+// - keySelector: A function that extracts the key from each element in the source collection.
+// - source: The collection of elements to be grouped.
+// - dest: The destination where the grouped elements will be stored.
+//
+// Returns:
+// - *Builder[T]: A Builder object for further processing of the grouped data.
+//
+// Example:
+//   type Person struct {
+//       Name string
+//       Age  int
+//   }
+//   
+//   people := []Person{
+//       {Name: "Alice", Age: 30},
+//       {Name: "Bob", Age: 25},
+//       {Name: "Charlie", Age: 30},
+//   }
+//   
+//   result := GroupBy(func(p Person) int { return p.Age }, people, dest)
+//   // This will group the people by age and store the results in 'dest'.
+
+func GroupBy[T any](keySelector KeySelector[T], source any, dest any) *Builder[T] {
+	var action Action[T] = func(index int, item T) {
+		result := keySelector(item)
+		touple := Touple{result, []T{item}}
+		store(touple, dest)
 	}
 	return ForEach[T](action, source)
 }
