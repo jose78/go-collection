@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>title</title>
-    <link>https://example.com/</link>
+    <link>https://jose78.github.io/go-collection/</link>
     <description>Recent content on title</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>Copyright © 2008–2019, Steve Francia and the Hugo Authors; all rights reserved.</copyright><atom:link href="https://example.com/index.xml" rel="self" type="application/rss+xml" />
+    <copyright>Copyright © 2008–2019, Jose Clavero Anderica; all rights reserved.</copyright><atom:link href="https://jose78.github.io/go-collection/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Filter</title>
-      <link>https://example.com/en/filter/</link>
+      <link>https://jose78.github.io/go-collection/en/filter/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://example.com/en/filter/</guid>
+      <guid>https://jose78.github.io/go-collection/en/filter/</guid>
       <description>Filters elements from a source based on a predicate function.
 func Filter[T any](predicate Predicate[T], source any, dest any) *Builder[T]   Description: Filters elements from source based on the predicate function and stores them in dest.
   Parameters:
@@ -22,10 +22,10 @@ func Filter[T any](predicate Predicate[T], source any, dest any) *Builder[T]   D
     
     <item>
       <title>ForEach</title>
-      <link>https://example.com/en/foreach/</link>
+      <link>https://jose78.github.io/go-collection/en/foreach/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://example.com/en/foreach/</guid>
+      <guid>https://jose78.github.io/go-collection/en/foreach/</guid>
       <description>Iterates over elements in a source and applies an action for each element.
 func ForEach[K any](action Action[K], src any) *Builder[K]   Description: Iterates over elements of src and executes the action for each element.
   Parameters:
@@ -35,20 +35,20 @@ func ForEach[K any](action Action[K], src any) *Builder[K]   Description: Iterat
     
     <item>
       <title>GroupBy</title>
-      <link>https://example.com/en/groupby/</link>
+      <link>https://jose78.github.io/go-collection/en/groupby/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://example.com/en/groupby/</guid>
+      <guid>https://jose78.github.io/go-collection/en/groupby/</guid>
       <description>Groups elements from a source based on a key selection function.
 func GroupBy[T any](keySelector KeySelector[T], source any, dest any) *Builder[T]  Description: Groups elements from source based on the key returned by keySelector and stores them in dest. Parameters:  keySelector: Function that extracts a key from each element of type T. It takes an element of type T and returns a key of type any. source: Source data to group (expects pointers to slices or maps).</description>
     </item>
     
     <item>
       <title>Map</title>
-      <link>https://example.com/en/map/</link>
+      <link>https://jose78.github.io/go-collection/en/map/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://example.com/en/map/</guid>
+      <guid>https://jose78.github.io/go-collection/en/map/</guid>
       <description>Applies a mapping function to each element of a source.
 func Map[T any](mapper Mapper[T], source any, dest any) *Builder[T]   Description: Applies the mapper function to each element of source and stores the results in dest.
   Parameters:
@@ -58,10 +58,10 @@ func Map[T any](mapper Mapper[T], source any, dest any) *Builder[T]   Descriptio
     
     <item>
       <title>Zip</title>
-      <link>https://example.com/en/zip/</link>
+      <link>https://jose78.github.io/go-collection/en/zip/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://example.com/en/zip/</guid>
+      <guid>https://jose78.github.io/go-collection/en/zip/</guid>
       <description>Combines two slices (keys and values) into a result map.
 func Zip[K comparable, V any](keys []K, values []V, result map[K]V) *Builder[K]   Description: Combines elements from keys and values into the result map.
   Parameters:
@@ -71,46 +71,46 @@ Copiar código package main import ( &amp;#34;fmt&amp;#34; &amp;#34;github.</des
     
     <item>
       <title>Filter</title>
-      <link>https://example.com/es/filter/</link>
+      <link>https://jose78.github.io/go-collection/es/filter/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://example.com/es/filter/</guid>
+      <guid>https://jose78.github.io/go-collection/es/filter/</guid>
       <description>La función filter te permite filtrar elementos de una colección basado en una función de predicado.</description>
     </item>
     
     <item>
       <title>forEach</title>
-      <link>https://example.com/es/foreach/</link>
+      <link>https://jose78.github.io/go-collection/es/foreach/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://example.com/es/foreach/</guid>
+      <guid>https://jose78.github.io/go-collection/es/foreach/</guid>
       <description>La función forEach itera sobre cada elemento de una colección y aplica una función dada a cada elemento.</description>
     </item>
     
     <item>
       <title>get in touch</title>
-      <link>https://example.com/contact/</link>
+      <link>https://jose78.github.io/go-collection/contact/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://example.com/contact/</guid>
+      <guid>https://jose78.github.io/go-collection/contact/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Map</title>
-      <link>https://example.com/es/map/</link>
+      <link>https://jose78.github.io/go-collection/es/map/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://example.com/es/map/</guid>
+      <guid>https://jose78.github.io/go-collection/es/map/</guid>
       <description>La función map aplica una función dada a cada elemento de una colección y devuelve una nueva colección con los resultados.</description>
     </item>
     
     <item>
       <title>Zip</title>
-      <link>https://example.com/es/zip/</link>
+      <link>https://jose78.github.io/go-collection/es/zip/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://example.com/es/zip/</guid>
+      <guid>https://jose78.github.io/go-collection/es/zip/</guid>
       <description>La función zip toma dos o más colecciones y devuelve una colección de tuplas, donde la i-ésima tupla contiene el i-ésimo elemento de cada una de las colecciones de entrada.</description>
     </item>
     
