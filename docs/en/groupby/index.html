@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="your description">
+    <meta name="Author" content="Jose Clavero Anderica">
+    <meta name="keywords" content="go-collections">
+    <link rel="stylesheet" href=https://example.com/css/syntax.css>
+    <link rel="stylesheet" href=https://example.com/css/style.css>
+    <script src="https://kit.fontawesome.com/1b7478c139.js" crossorigin="anonymous"></script>
+    <title>title</title>
+  </head><body><aside id="sidenav">
+    <header>
+    
+        <a href=https://example.com><img src="https://example.com/avatar.png" alt="avatar"></a>
+        
+    
+
+    <a id="branding" href=https://example.com>
+        
+            title
+        
+    </a>
+    </header>
+
+    <nav>
+        
+            		
+            <a href="/en/filter"
+                
+            >
+                <i class="fas fa-filter"></i>
+                <span>Filter</span>
+            </a>
+        
+            		
+            <a href="/en/foreach"
+                
+            >
+                <i class="fas fa-sync"></i>
+                <span>ForEach</span>
+            </a>
+        
+            		
+            <a href="/en/groupby"
+                
+            >
+                <i class="fas fa-folder"></i>
+                <span>GroupBy</span>
+            </a>
+        
+            		
+            <a href="/en/map"
+                
+            >
+                <i class="fas fa-map"></i>
+                <span>Map</span>
+            </a>
+        
+            		
+            <a href="/en/zip"
+                
+            >
+                <i class="fas fa-compress-arrows-alt"></i>
+                <span>Zip</span>
+            </a>
+        
+            		
+            <a href="/contact"
+                
+            >
+                <i class="far fa-envelope"></i>
+                <span>contact</span>
+            </a>
+        
+    </nav>
+</aside>
+<main id="main"><footer>
+<div class="footer-content">
+
+
+<p class="copyright meta">Copyright © 2008–2019, Steve Francia and the Hugo Authors; all rights reserved.</p>
+
+</div>
+</footer><a href="javascript:void(0)" id="closebtn" onclick="navToggle()"><i class="fas fa-bars fa-lg"></i></a>
+            <div class="content">
+    
+    <h1 id="title">GroupBy</h1>
+    
+      
+    <nav id="TableOfContents"></nav>
+    <p>Groups elements from a source based on a key selection function.</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nx">GroupBy</span><span class="p">[</span><span class="nx">T</span> <span class="nx">any</span><span class="p">](</span><span class="nx">keySelector</span> <span class="nx">KeySelector</span><span class="p">[</span><span class="nx">T</span><span class="p">],</span> <span class="nx">source</span> <span class="nx">any</span><span class="p">,</span> <span class="nx">dest</span> <span class="nx">any</span><span class="p">)</span> <span class="o">*</span><span class="nx">Builder</span><span class="p">[</span><span class="nx">T</span><span class="p">]</span>
+</code></pre></div><ul>
+<li>Description: Groups elements from source based on the key returned by keySelector and stores them in dest.</li>
+<li>Parameters:
+<ul>
+<li>keySelector: Function that extracts a key from each element of type T. It takes an element of type T and returns a key of type any.</li>
+<li>source: Source data to group (expects pointers to slices or maps).
+dest: Destination where grouped elements will be stored (expects pointers to maps).</li>
+</ul>
+</li>
+</ul>
+<p>Example</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+	<span class="s">&#34;fmt&#34;</span>
+	<span class="s">&#34;github.com/jose78/go-collection&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">type</span> <span class="nx">Person</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Name</span> <span class="kt">string</span>
+	<span class="nx">Age</span>  <span class="kt">int</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">people</span> <span class="o">:=</span> <span class="p">[]</span><span class="nx">Person</span><span class="p">{</span>
+		<span class="p">{</span><span class="s">&#34;Alice&#34;</span><span class="p">,</span> <span class="mi">25</span><span class="p">},</span>
+		<span class="p">{</span><span class="s">&#34;Bob&#34;</span><span class="p">,</span> <span class="mi">30</span><span class="p">},</span>
+		<span class="p">{</span><span class="s">&#34;Charlie&#34;</span><span class="p">,</span> <span class="mi">25</span><span class="p">},</span>
+	<span class="p">}</span>
+	
+	<span class="nx">groups</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">int</span><span class="p">][]</span><span class="nx">Person</span><span class="p">)</span>
+	
+	<span class="nx">builder</span> <span class="o">:=</span> <span class="nx">collection</span><span class="p">.</span><span class="nf">GroupBy</span><span class="p">(</span><span class="kd">func</span><span class="p">(</span><span class="nx">person</span> <span class="nx">Person</span><span class="p">)</span> <span class="nx">any</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nx">person</span><span class="p">.</span><span class="nx">Age</span>
+	<span class="p">},</span> <span class="o">&amp;</span><span class="nx">people</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">groups</span><span class="p">)</span>
+	
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">builder</span><span class="p">.</span><span class="nf">Error</span><span class="p">();</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Error during grouping: %v\n&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="k">for</span> <span class="nx">age</span><span class="p">,</span> <span class="nx">group</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">groups</span> <span class="p">{</span>
+			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;People with age %d:\n&#34;</span><span class="p">,</span> <span class="nx">age</span><span class="p">)</span>
+			<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">person</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">group</span> <span class="p">{</span>
+				<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;- %s\n&#34;</span><span class="p">,</span> <span class="nx">person</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div>
+    
+    
+    
+
+            </div>
+        </main>
+    </body>
+    <script src=https://example.com/js/navbutton.js></script>
+</html>

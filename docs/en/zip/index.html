@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="your description">
+    <meta name="Author" content="Jose Clavero Anderica">
+    <meta name="keywords" content="go-collections">
+    <link rel="stylesheet" href=https://example.com/css/syntax.css>
+    <link rel="stylesheet" href=https://example.com/css/style.css>
+    <script src="https://kit.fontawesome.com/1b7478c139.js" crossorigin="anonymous"></script>
+    <title>title</title>
+  </head><body><aside id="sidenav">
+    <header>
+    
+        <a href=https://example.com><img src="https://example.com/avatar.png" alt="avatar"></a>
+        
+    
+
+    <a id="branding" href=https://example.com>
+        
+            title
+        
+    </a>
+    </header>
+
+    <nav>
+        
+            		
+            <a href="/en/filter"
+                
+            >
+                <i class="fas fa-filter"></i>
+                <span>Filter</span>
+            </a>
+        
+            		
+            <a href="/en/foreach"
+                
+            >
+                <i class="fas fa-sync"></i>
+                <span>ForEach</span>
+            </a>
+        
+            		
+            <a href="/en/groupby"
+                
+            >
+                <i class="fas fa-folder"></i>
+                <span>GroupBy</span>
+            </a>
+        
+            		
+            <a href="/en/map"
+                
+            >
+                <i class="fas fa-map"></i>
+                <span>Map</span>
+            </a>
+        
+            		
+            <a href="/en/zip"
+                
+            >
+                <i class="fas fa-compress-arrows-alt"></i>
+                <span>Zip</span>
+            </a>
+        
+            		
+            <a href="/contact"
+                
+            >
+                <i class="far fa-envelope"></i>
+                <span>contact</span>
+            </a>
+        
+    </nav>
+</aside>
+<main id="main"><footer>
+<div class="footer-content">
+
+
+<p class="copyright meta">Copyright © 2008–2019, Steve Francia and the Hugo Authors; all rights reserved.</p>
+
+</div>
+</footer><a href="javascript:void(0)" id="closebtn" onclick="navToggle()"><i class="fas fa-bars fa-lg"></i></a>
+            <div class="content">
+    
+    <h1 id="title">Zip</h1>
+    
+      
+    <nav id="TableOfContents"></nav>
+    <p>Combines two slices (keys and values) into a result map.</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nx">Zip</span><span class="p">[</span><span class="nx">K</span> <span class="nx">comparable</span><span class="p">,</span> <span class="nx">V</span> <span class="nx">any</span><span class="p">](</span><span class="nx">keys</span> <span class="p">[]</span><span class="nx">K</span><span class="p">,</span> <span class="nx">values</span> <span class="p">[]</span><span class="nx">V</span><span class="p">,</span> <span class="nx">result</span> <span class="kd">map</span><span class="p">[</span><span class="nx">K</span><span class="p">]</span><span class="nx">V</span><span class="p">)</span> <span class="o">*</span><span class="nx">Builder</span><span class="p">[</span><span class="nx">K</span><span class="p">]</span>
+</code></pre></div><ul>
+<li>
+<p>Description: Combines elements from keys and values into the result map.</p>
+</li>
+<li>
+<p>Parameters:</p>
+<ul>
+<li>keys: Slice of keys for the resulting map.</li>
+<li>values: Slice of values to associate with the keys.</li>
+<li>result: Map where combined key-value pairs will be stored.</li>
+</ul>
+</li>
+</ul>
+<p>Example</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">Copiar</span> <span class="nx">código</span>
+<span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+	<span class="s">&#34;fmt&#34;</span>
+	<span class="s">&#34;github.com/jose78/go-collection&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">keys</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;a&#34;</span><span class="p">,</span> <span class="s">&#34;b&#34;</span><span class="p">,</span> <span class="s">&#34;c&#34;</span><span class="p">}</span>
+	<span class="nx">values</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">int</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">}</span>
+	<span class="nx">result</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">int</span><span class="p">)</span>
+	
+	<span class="nx">builder</span> <span class="o">:=</span> <span class="nx">collection</span><span class="p">.</span><span class="nf">Zip</span><span class="p">(</span><span class="nx">keys</span><span class="p">,</span> <span class="nx">values</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">builder</span><span class="p">.</span><span class="nf">Error</span><span class="p">();</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Error during zipping: %v\n&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Zipped map:&#34;</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+    
+    
+    
+
+            </div>
+        </main>
+    </body>
+    <script src=https://example.com/js/navbutton.js></script>
+</html>

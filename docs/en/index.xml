@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Go Functions Library on title</title>
+    <link>https://example.com/en/</link>
+    <description>Recent content in Go Functions Library on title</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>Copyright © 2008–2019, Steve Francia and the Hugo Authors; all rights reserved.</copyright><atom:link href="https://example.com/en/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Filter</title>
+      <link>https://example.com/en/filter/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/en/filter/</guid>
+      <description>Filters elements from a source based on a predicate function.
+func Filter[T any](predicate Predicate[T], source any, dest any) *Builder[T]   Description: Filters elements from source based on the predicate function and stores them in dest.
+  Parameters:
+  predicate: Function that evaluates whether an element should be included in the result. It takes an element of type T and returns a bool.
+  source: Source data to filter (expects pointers to slices or maps).</description>
+    </item>
+    
+    <item>
+      <title>ForEach</title>
+      <link>https://example.com/en/foreach/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/en/foreach/</guid>
+      <description>Iterates over elements in a source and applies an action for each element.
+func ForEach[K any](action Action[K], src any) *Builder[K]   Description: Iterates over elements of src and executes the action for each element.
+  Parameters:
+  action: Function defining the action to perform on each element. It takes an index (int) and an element of type K.
+  src: Source data to iterate over (expects pointers to slices or maps).</description>
+    </item>
+    
+    <item>
+      <title>GroupBy</title>
+      <link>https://example.com/en/groupby/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/en/groupby/</guid>
+      <description>Groups elements from a source based on a key selection function.
+func GroupBy[T any](keySelector KeySelector[T], source any, dest any) *Builder[T]  Description: Groups elements from source based on the key returned by keySelector and stores them in dest. Parameters:  keySelector: Function that extracts a key from each element of type T. It takes an element of type T and returns a key of type any. source: Source data to group (expects pointers to slices or maps).</description>
+    </item>
+    
+    <item>
+      <title>Map</title>
+      <link>https://example.com/en/map/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/en/map/</guid>
+      <description>Applies a mapping function to each element of a source.
+func Map[T any](mapper Mapper[T], source any, dest any) *Builder[T]   Description: Applies the mapper function to each element of source and stores the results in dest.
+  Parameters:
+  mapper: Function that transforms each element of type T into another type. It takes an element of type T and returns a transformed value of type any.
+  source: Source data to transform (expects pointers to slices or maps).</description>
+    </item>
+    
+    <item>
+      <title>Zip</title>
+      <link>https://example.com/en/zip/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/en/zip/</guid>
+      <description>Combines two slices (keys and values) into a result map.
+func Zip[K comparable, V any](keys []K, values []V, result map[K]V) *Builder[K]   Description: Combines elements from keys and values into the result map.
+  Parameters:
+ keys: Slice of keys for the resulting map. values: Slice of values to associate with the keys. result: Map where combined key-value pairs will be stored.    Example
+Copiar código package main import ( &amp;#34;fmt&amp;#34; &amp;#34;github.</description>
+    </item>
+    
+  </channel>
+</rss>
