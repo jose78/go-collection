@@ -20,13 +20,13 @@ html, body {
     line-height: 1.6;
     height: 100%;
     margin: 0px;
-    background-color:#ffffff;
-    color : #202224;
+    background-color:#1A1C1D;
+    color : #D8D6D0;
 }
 
 a {
     text-decoration: none;
-    color: #007d9c;
+    color: #389DFF;
 }
 
 a:hover {
@@ -45,7 +45,6 @@ aside {
     display: flex;
     flex-direction: column;
     align-items: center;
-    border-right: 1px solid #3D3D3D;
     transition: 0.3s; /* 0.5 second transition effect to slide in the sidenav */
 }
 
@@ -58,43 +57,28 @@ aside i[class^="fa"]{
 }
 
 aside header {
-    background-color: #007d9c;
+    background-color:#007d9c;
     text-align: center;
     display: flex;
     align-items: center;
     width: 100%;
     flex-direction: column;
-    position: relative; /* Añade posición relativa para el posicionamiento del círculo */
 }
 
-aside header::before {
-    content: '';
-    width: 150px; /* Diámetro del círculo */
-    height: 150px; /* Diámetro del círculo */
-    border-radius: 50%; /* Hace que el elemento sea circular */
-    background-color: #ffffff; /* Color de fondo del círculo */
-    position: absolute;
-    top: 20px; /* Ajusta la distancia desde la parte superior */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra suave para efecto 3D */
-    left: 50%; /* Centra horizontalmente */
-    transform: translateX(-50%); /* Ajusta la posición horizontal */
-    overflow: hidden; /* Oculta cualquier contenido fuera del círculo */
+aside header img{
+    margin-top: 20px;
+    min-width: 150px;
+    max-width: 150px;
+    border-radius: 5px;
+
 }
 
-aside header img {
-    width: 60%; /* Ajusta la imagen al tamaño del círculo */
-    height: auto; /* Mantiene la proporción de la imagen */
-    border-radius: 50%; /* Hace que la imagen también sea circular */
-    object-fit: cover; /* Ajusta la imagen dentro del círculo */
-    position: absolute; /* Ajusta la imagen dentro del círculo */
-    top: 30%; /* Ajusta la distancia desde la parte superior */
-    left: 50%; /* Centra horizontalmente */
-    transform: translateX(-50%); /* Ajusta la posición horizontal */
-    z-index: 1; /* Asegura que la imagen esté sobre el círculo */
-    max-width: 100%; /* Limita el ancho máximo de la imagen */
-    max-height: 100%; /* Limita la altura máxima de la imagen */
-}
-
+img {
+    -webkit-filter: drop-shadow(3px 3px 0 rgb(54, 54, 54))
+                    drop-shadow(-3px -3px 0 rgb(54, 54, 54));
+    filter: drop-shadow(3px 3px 0 rgb(54, 54, 54)) 
+            drop-shadow(-3px -3px 0 rgb(54, 54, 54));
+  }
 
 aside a:hover {
     text-decoration: none;
@@ -117,7 +101,8 @@ aside nav a {
     overflow-x: hidden;
     overflow-y: auto;
     white-space: nowrap;
-    text-align: center;
+    text-align: left;
+    margin-left: 30%;
     transition: 0.2s;
 }
 

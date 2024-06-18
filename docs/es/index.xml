@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Librería de Funciones en Go on title</title>
+    <title>Librería de Funciones en Go on go-collection</title>
     <link>https://jose78.github.io/go-collection/es/</link>
-    <description>Recent content in Librería de Funciones en Go on title</description>
+    <description>Recent content in Librería de Funciones en Go on go-collection</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Copyright © 2008–2019, Jose Clavero Anderica; all rights reserved.</copyright><atom:link href="https://jose78.github.io/go-collection/es/index.xml" rel="self" type="application/rss+xml" />
