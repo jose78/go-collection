@@ -3,7 +3,7 @@
 [![CircleCI](https://circleci.com/gh/jose78/go-collection.svg?style=shield)](https://circleci.com/gh/jose78/go-collection)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/jose78/go-collection)](https://pkg.go.dev/github.com/jose78/go-collection)
 
-# go-collection <img align="right" width="60" height="100" src="resources/gopher.jpg">
+# go-collection <img align="right" width="80" height="100" src="resources/gopher.png">
 
 
 
