@@ -1,4 +1,4 @@
-package gocollection
+package collection
 
 import (
 	"fmt"
