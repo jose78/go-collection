@@ -26,39 +26,50 @@ Usage
 
 Represents a key-value pair with a generic key and value.
 
+```go
     type Touple struct {
         Key   any // Key is the key of the key-value pair.
         Value any // Value is the value of the key-value pair.
     }
+```
 
 #### Mapper
 
 Represents a function that takes a value of any type `T` and returns a value of any type.
 
+```go
     type Mapper[T any] func(T) any
+```
 
 #### Predicate
 
 Represents a function that takes a value of any type `T` and returns a boolean. It is used to test whether the input value satisfies a certain condition.
 
+```go
     type Predicate[T any] func(T) bool
+```
 
 #### Action
 
 Represents a function that takes an index and a value of any type `T`. It is intended to be used in an iteration context, such as a forEach function, where it will be executed for each element in a collection.
 
+```go
     type Action[T any] func(int, T)
+```
 
-#### KeySelector
+##### KeySelector
 
 Represents a function that takes a key of type `K` and returns a `Touple` with the key and a value of type `V`. The key must be of a comparable type.
 
+```go
     type KeySelector[K comparable, V any] func(K) Touple
+```
 
 #### Builder
 
 A struct with an error and the item that caused the error.
 
+```go
     type Builder[T any] struct {
         err  error
         item T
@@ -76,50 +87,59 @@ A struct with an error and the item that caused the error.
         }
         return b
     }
+```
 
 ### Functions
 
-#### Map
-
-Applies a `Mapper` function to each element in the source collection and stores the result in the dest collection.
-
-    func Map[T any](mapper Mapper[T], source []T, dest *[]any) *Builder[T]
-
-#### ForEach
-
-Applies an `Action` function to each element in the source collection.
-
-    func ForEach[K any](action Action[K], src any) *Builder[K]
-
-#### Zip
-
-Combines two slices into a map, using elements from the keys slice as keys and elements from the values slice as values.
-
-    func Zip[K comparable, V any](keys []K, values []V, result map[K]V) *Builder[K]
-
-#### isMap
-
-Checks if the given element is of map type.
-
-    func isMap(elements any) bool
-
-#### store
-
-Inserts data into the destination collection, which can be either a map or a slice.
-
-    func store(data any, dest any)
 
 #### Filter
 
 Applies a `Predicate` function to each element in the source collection and stores the elements that satisfy the predicate in the dest collection.
 
+```go
     func Filter[T any](predicate Predicate[T], source any, dest any) *Builder[T]
+```
 
-Example
+#### ForEach
+
+Applies an `Action` function to each element in the source collection.
+
+```go
+    func ForEach[K any](action Action[K], src any) *Builder[K]
+```
+
+#### GroupBy
+
+groups elements from the source collection based on a specified key selector function and stores the results in the destination. It returns a Builder which can be used for further processing of the grouped data.
+
+```go
+    func Zip[K comparable, V any](keys []K, values []V, result map[K]V) *Builder[K]
+```
+
+#### Map
+
+Applies a `Mapper` function to each element in the source collection and stores the result in the dest collection.
+
+```go
+    func Map[T any](mapper Mapper[T], source []T, dest *[]any) *Builder[T]
+```
+
+#### Zip
+
+Combines two slices into a map, using elements from the keys slice as keys and elements from the values slice as values.
+
+```go
+    func Zip[K comparable, V any](keys []K, values []V, result map[K]V) *Builder[K]
+```
+
+
+
+### Example
 -------
 
 Here is an example of how to use the `go-collection` package:
 
+```go
     package main
     
     import (
@@ -135,3 +155,4 @@ Here is an example of how to use the `go-collection` package:
         go-collection.Map(mapper, source, &dest)
         fmt.Println(dest)
     }
+```
