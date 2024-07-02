@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html><head>
-	<meta name="generator" content="Hugo 0.80.0" />
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="your description">
@@ -89,57 +88,86 @@
             <a href="javascript:void(0)" id="closebtn" onclick="navToggle()"><i class="fas fa-bars fa-lg"></i></a>
             <div class="content">
     
-      <h1 id="go-collection">go-collection</h1>
-<p>Welcome to the official documentation of <code>go-collection</code>, a powerful Go library designed to simplify working with lists (arrays and slices) and maps. This library provides a set of high-level functions that enable you to perform common collection operations with ease and efficiency.</p>
-<h2 id="overview">Overview</h2>
-<p>The <code>go-collection</code> library is inspired by functional programming paradigms and aims to bring the same level of expressive power to Go. Whether you are filtering data, transforming elements, grouping items, or performing other operations, <code>go-collection</code> provides intuitive and efficient solutions.</p>
-<h2 id="features">Features</h2>
-<p>Here are the key features and functions provided by <code>go-collection</code>:</p>
+    <h1 id="title">GroupBy</h1>
+    
+      
+    <p>Groups elements from a source based on a key selection function.</p>
+<div class="code-block">
+  
+  <div class="code-container">
+    <button class="copy-button" onclick="copyToClipboard(this)">Copy</button>
+    <pre><code class="go">func GroupBy[T any](keySelector KeySelector[T], source any, dest any) *Builder[T]
+</code></pre>
+  </div>
+</div>
+
 <ul>
-<li>
-<p><strong>Filter</strong>
-The <code>Filter</code> function allows you to filter elements of a collection based on a given predicate. This is useful for extracting subsets of data that meet certain criteria.</p>
-</li>
-<li>
-<p><strong>GroupBy</strong>
-The GroupBy function groups the elements of a collection based on a specified key. This is ideal for organizing data into categories or bins.</p>
-</li>
-<li>
-<p><strong>Map</strong>
-The Map function transforms each element of a collection by applying a given function. This is useful for converting data from one form to another.</p>
-</li>
-<li>
-<p><strong>Zip</strong>
-The Zip function combines two collections into a single collection of pairs. This is useful for processing two related collections in tandem.</p>
+<li>Description: Groups elements from source based on the key returned by keySelector and stores them in dest.</li>
+<li>Parameters:
+<ul>
+<li>keySelector: Function that extracts a key from each element of type T. It takes an element of type T and returns a key of type any.</li>
+<li>source: Source data to group (expects pointers to slices or maps).
+dest: Destination where grouped elements will be stored (expects pointers to maps).</li>
+</ul>
 </li>
 </ul>
-<h2 id="getting-started">Getting Started</h2>
-<p>To get started with go-collection, first install the library via go get:</p>
+<h3 id="example">Example</h3>
 <div class="code-block">
+  
+  <div class="code-title">
+    Example: Group by age a list of Structs.
+    
+    <a href="https://go.dev/play/p/br192WXHNqF" target="_blank">🔗 Go Playground</a>
+    
+  </div>
   
   <div class="code-container">
     <button class="copy-button" onclick="copyToClipboard(this)">Copy</button>
-    <pre><code class="bash">go get github.com/jose78/go-collection/v2</code></pre>
+    <pre><code class="go">package main
+
+import (
+	"fmt"
+
+	collection "github.com/jose78/go-collection/v2"
+)
+
+type Person struct {
+	Name string
+	Age  int
+}
+
+func keySelectorByAge(person Person) any {
+	return person.Age
+}
+
+func main() {
+	people := []Person{
+		{"Alice", 25},
+		{"Bob", 30},
+		{"Charlie", 25},
+	}
+
+	groups := make(map[int][]Person)
+
+	builderError := collection.GroupBy(keySelectorByAge, people, groups)
+
+	if builderError != nil {
+		fmt.Printf("Error during grouping: %v\n", builderError.Error())
+	} else {
+		for age, group := range groups {
+			fmt.Printf("People with age %d:\n", age)
+			for _, person := range group {
+				fmt.Printf("- %s\n", person.Name)
+			}
+		}
+	}
+
+}
+
+</code></pre>
   </div>
 </div>
 
-<p>Then, import the library in your Go code:</p>
-<div class="code-block">
-  
-  <div class="code-container">
-    <button class="copy-button" onclick="copyToClipboard(this)">Copy</button>
-    <pre><code class="go">import "github.com/yourusername/go-collection/v2"</code></pre>
-  </div>
-</div>
-
-<p>You are now ready to start using the powerful functions provided by go-collection to manage and manipulate your collections in Go.</p>
-<h2 id="contributing">Contributing</h2>
-<p>We welcome contributions to go-collection. If you have suggestions, bug reports, or feature requests, please open an issue or submit a pull request on our GitHub repository.</p>
-<h2 id="license">License</h2>
-<p>go-collection is licensed under the MIT License. See the LICENSE file for more details.</p>
-
-    
-    
 
     
 
