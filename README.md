@@ -5,7 +5,7 @@
 =======
 
 
-# go-collection <img align="right" width="80" height="100" src="resources/gopher.png">
+# Go-collection <img align="right" width="80" height="100" src="resources/gopher.png">
 
 
 
