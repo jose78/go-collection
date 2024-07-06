@@ -15,7 +15,9 @@ Installation
 
 To install the package, use:
 
+
     go get github.com/jose78/go-collection/v2
+
 
 Usage
 -----
