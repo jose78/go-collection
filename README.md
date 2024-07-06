@@ -15,7 +15,9 @@ Installation
 
 To install the package, use:
 
-    go get github.com/jose78/go-collection
+
+    go get github.com/jose78/go-collection/v2
+
 
 Usage
 -----
@@ -144,7 +146,7 @@ Here is an example of how to use the `go-collection` package:
     
     import (
         "fmt"
-        "github.com/jose78/go-collection"
+        "github.com/jose78/go-collection/v2"
     )
     
     func main() {
