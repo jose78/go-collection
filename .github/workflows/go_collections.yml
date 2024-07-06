@@ -28,7 +28,7 @@ jobs:
       - run: go mod tidy
       - run: go get  github.com/mattn/goveralls@latest
       - run: go test  -cover -race  -v ./...
-      - run: /go/bin/goveralls  -service=circle-ci  -repotoken=${{ COVERALLS_TOKEN }}
+      - run: /go/bin/goveralls  -service=circle-ci  -repotoken=${{ secrets.COVERALLS_TOKEN }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
       - name: List files in the repository
         run: |
