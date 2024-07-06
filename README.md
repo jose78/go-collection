@@ -2,6 +2,8 @@
 [![Coverage Status](https://coveralls.io/repos/github/jose78/go-collection/badge.svg?branch=master)](https://coveralls.io/github/jose78/go-collection?branch=master)
 [![CircleCI](https://circleci.com/gh/jose78/go-collection.svg?style=shield)](https://circleci.com/gh/jose78/go-collection)
 [![Go Reference](https://pkg.go.dev/badge/github.com/jose78/go-collection/v2.svg)](https://pkg.go.dev/github.com/jose78/go-collection/v2)
+=======
+
 
 # go-collection <img align="right" width="80" height="100" src="resources/gopher.png">
 
@@ -15,9 +17,9 @@ Installation
 
 To install the package, use:
 
-```bash
-    go get github.com/jose78/go-collection
-```
+
+    go get github.com/jose78/go-collection/v2
+
 
 Usage
 -----
@@ -59,7 +61,7 @@ Represents a function that takes an index and a value of any type `T`. It is int
     type Action[T any] func(int, T)
 ```
 
-#### KeySelector
+##### KeySelector
 
 Represents a function that takes a key of type `K` and returns a `Touple` with the key and a value of type `V`. The key must be of a comparable type.
 
@@ -70,6 +72,7 @@ Represents a function that takes a key of type `K` and returns a `Touple` with t
 #### Builder
 
 A struct with an error and the item that caused the error.
+
 ```go
     type Builder[T any] struct {
         err  error
@@ -89,14 +92,16 @@ A struct with an error and the item that caused the error.
         return b
     }
 ```
+
 ### Functions
 
-#### Map
 
-Applies a `Mapper` function to each element in the source collection and stores the result in the dest collection.
+#### Filter
+
+Applies a `Predicate` function to each element in the source collection and stores the elements that satisfy the predicate in the dest collection.
 
 ```go
-    func Map[T any](mapper Mapper[T], source []T, dest *[]any) *Builder[T]
+    func Filter[T any](predicate Predicate[T], source any, dest any) *Builder[T]
 ```
 
 #### ForEach
@@ -107,6 +112,22 @@ Applies an `Action` function to each element in the source collection.
     func ForEach[K any](action Action[K], src any) *Builder[K]
 ```
 
+#### GroupBy
+
+groups elements from the source collection based on a specified key selector function and stores the results in the destination. It returns a Builder which can be used for further processing of the grouped data.
+
+```go
+    func Zip[K comparable, V any](keys []K, values []V, result map[K]V) *Builder[K]
+```
+
+#### Map
+
+Applies a `Mapper` function to each element in the source collection and stores the result in the dest collection.
+
+```go
+    func Map[T any](mapper Mapper[T], source []T, dest *[]any) *Builder[T]
+```
+
 #### Zip
 
 Combines two slices into a map, using elements from the keys slice as keys and elements from the values slice as values.
@@ -115,30 +136,9 @@ Combines two slices into a map, using elements from the keys slice as keys and e
     func Zip[K comparable, V any](keys []K, values []V, result map[K]V) *Builder[K]
 ```
 
-#### isMap
 
-Checks if the given element is of map type.
 
-```go
-    func isMap(elements any) bool
-```
-
-#### store
-
-Inserts data into the destination collection, which can be either a map or a slice.
-```go
-    func store(data any, dest any)
-```
-
-#### Filter
-
-Applies a `Predicate` function to each element in the source collection and stores the elements that satisfy the predicate in the dest collection.
-
-```go
-    func Filter[T any](predicate Predicate[T], source any, dest any) *Builder[T]
-```
-
-Example
+### Example
 -------
 
 Here is an example of how to use the `go-collection` package:
@@ -148,7 +148,7 @@ Here is an example of how to use the `go-collection` package:
     
     import (
         "fmt"
-        "github.com/jose78/go-collection"
+        "github.com/jose78/go-collection/v2"
     )
     
     func main() {
