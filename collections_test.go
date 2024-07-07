@@ -21,12 +21,6 @@ type testUser struct {
 	male       bool
 }
 
-type byName []testUser
-
-func (a byName) Len() int           { return len(a) }
-func (a byName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a byName) Less(i, j int) bool { return a[i].name < a[j].name }
-
 func generateTestCaseList() []testUser {
 	return []testUser{john, sarah, kyle}
 }
@@ -331,16 +325,16 @@ func TestSortBy(t *testing.T) {
 	}
 	type args[T any] struct {
 		comparator Comparator[int]
-		source     []T
+		source     any
 	}
 	type testsType[T any] struct {
 		name string
 		args args[T]
-		want []T
+		want any
 	}
 
 	tests := []testsType[int]{
-		{"Sort int slice", args[int]{comparator: compareInt, source: src}, want},
+		{"Sort int slice", args[int]{comparator: compareInt, source: &src}, &want},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
