@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"sort"
 )
 
 // Touple represents a key-value pair with a generic key and value.
@@ -36,7 +37,6 @@ type Action[T any] func(int, T)
 // KeySelector represents a function that takes a key of type K and returns a Touple with the key and a value of type V.
 // The key must be of a comparable type.
 // K - the type of the key, which must be comparable.
-// V - the type of the value.
 type KeySelector[K any] func(K) any
 
 // Builder struct with an error and the item that caused the error
@@ -60,7 +60,6 @@ func (b *Builder[T]) WithErrorMessage(fn ErrorFormatter[T]) *Builder[T] {
 	return b
 }
 
-
 // ForEach applies an Action function to each element in the source collection.
 // T - the type of the elements in the source collection.
 // action - the function that is executed for each element, taking the index and the element as parameters.
@@ -80,7 +79,7 @@ func ForEach[K any](action Action[K], src any) *Builder[K] {
 		}(internaParam)
 		action(index, internaParam.(K))
 	}
-	if isMap(src) {
+	if IsMap(src) {
 		val := reflect.ValueOf(src)
 		count := -1
 		for _, key := range val.MapKeys() {
@@ -128,10 +127,10 @@ func Zip[K comparable, V any](keys []K, values []V, result map[K]V) *Builder[K] 
 	return b
 }
 
-// isMap checks if the given element is of map type.
+// IsMap checks if the given element is of map type.
 // elements - the element to check.
 // Returns true if the element is a map, false otherwise.
-func isMap(elements any) bool {
+func IsMap(elements any) bool {
 	t := reflect.TypeOf(elements)
 	return reflect.Map == t.Kind()
 }
@@ -142,7 +141,7 @@ func isMap(elements any) bool {
 // If dest is a map, data.(Touple).Key is used as the key and data.(Touple).Value is used as the value.
 // If dest is a slice, data is appended to the slice.
 func store(data any, dest any) {
-	if isMap(dest) {
+	if IsMap(dest) {
 		val := reflect.ValueOf(dest)
 		keyVal := reflect.ValueOf(data.(Touple).Key)
 		valueVal := reflect.ValueOf(data.(Touple).Value)
@@ -180,7 +179,6 @@ func Filter[T any](predicate Predicate[T], source any, dest any) *Builder[T] {
 	return ForEach[T](action, source)
 }
 
-
 // Map applies a Mapper function to each element in the source collection and stores the result in the dest collection.
 // T - the type of the elements in the source collection.
 // mapper - the function that transforms each element.
@@ -212,13 +210,13 @@ func Map[T any](mapper Mapper[T], source any, dest any) *Builder[T] {
 //       Name string
 //       Age  int
 //   }
-//   
+//
 //   people := []Person{
 //       {Name: "Alice", Age: 30},
 //       {Name: "Bob", Age: 25},
 //       {Name: "Charlie", Age: 30},
 //   }
-//   
+//
 //   result := GroupBy(func(p Person) int { return p.Age }, people, dest)
 //   // This will group the people by age and store the results in 'dest'.
 
@@ -229,4 +227,14 @@ func GroupBy[T any](keySelector KeySelector[T], source any, dest any) *Builder[T
 		store(touple, dest)
 	}
 	return ForEach[T](action, source)
+}
+
+type Comparator[T any] func(T, T) int
+
+func SortBy[T any](comparator Comparator[T], source any) {
+	lst := source.(*[]T)
+	sort.Slice(*lst, func(i, j int) bool {
+		return comparator((*lst)[i], (*lst)[j]) < 0
+	})
+
 }

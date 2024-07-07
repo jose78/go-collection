@@ -21,6 +21,12 @@ type testUser struct {
 	male       bool
 }
 
+type byName []testUser
+
+func (a byName) Len() int           { return len(a) }
+func (a byName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a byName) Less(i, j int) bool { return a[i].name < a[j].name }
+
 func generateTestCaseList() []testUser {
 	return []testUser{john, sarah, kyle}
 }
@@ -204,9 +210,17 @@ type testsTypeMap[T any] struct {
 	err       error
 }
 
+func compareTestUser(userA, userB string) int {
+	return strings.Compare(userA, userB)
+}
 func (tt testsTypeMap[T]) runTestMap(testRunner *testing.T) {
 	testRunner.Run(tt.name, func(t *testing.T) {
 		got := Map(tt.args.mapper, tt.args.source, tt.args.dest)
+
+		if !IsMap(tt.args.dest) {
+			SortBy(compareTestUser, tt.args.dest)
+		}
+
 		if !tt.wantError && got != nil {
 			t.Errorf("Map() KO = %v, wantError %v", got, tt.wantError)
 		}
@@ -233,7 +247,7 @@ var mapperSplitName Mapper[string] = func(s string) any {
 
 // Test functions
 func TestMap(t *testing.T) {
-	result := []string{"John Connor", "Sarah Connor", "Kyle Risk"}
+	result := []string{"John Connor", "Kyle Risk", "Sarah Connor"}
 	lstUsersFromList := []string{}
 	lstUsersFromMap := []string{}
 	names := map[string]string{}
@@ -241,14 +255,14 @@ func TestMap(t *testing.T) {
 	resulNames := map[string]string{"Sarah": "Connor", "Kyle": "Risk", "John": "Connor"}
 
 	testsTypeMap[testUser]{
-		name:      "Filter male from list of test user",
+		name:      "Geneare a list of names from Map.",
 		args:      argsMap[testUser]{mapperToNamesFromList, errorFmt, generateTestCaseList(), &lstUsersFromList},
 		want:      &result,
 		wantError: false,
 		err:       nil}.runTestMap(t)
 
 	testsTypeMap[Touple]{
-		name:      "Filter male from map of test user",
+		name:      "Generate a new Map taken the name as key and the struct as value.",
 		args:      argsMap[Touple]{mapperToNamesFromMap, errorFmtAsTouple, generateTestCaseMap(), &lstUsersFromMap},
 		want:      &result,
 		wantError: false,
@@ -256,13 +270,12 @@ func TestMap(t *testing.T) {
 	}.runTestMap(t)
 
 	testsTypeMap[string]{
-		name:      "Map list of names and seconds names to map ",
+		name:      "Generate a new Map, taken as keyy the first name, and value the second name.",
 		args:      argsMap[string]{mapperSplitName, errorFmtAsString, lstUsersFromMap, names},
 		want:      resulNames,
 		wantError: false,
 		err:       nil,
 	}.runTestMap(t)
-
 }
 
 type argsGroupBy[T any] struct {
@@ -301,15 +314,41 @@ var keySelectorBySex KeySelector[testUser] = func(tu testUser) any {
 }
 
 func TestGroupBy(t *testing.T) {
-
 	result := map[string][]testUser{"male": {john, kyle}, "female": {sarah}}
-
 	testsTypeGroupBy[testUser]{
 		name:      "Filter male from list of test user",
 		args:      argsGroupBy[testUser]{keySelectorBySex, errorFmt, generateTestCaseList(), map[string][]testUser{}},
 		want:      result,
 		wantError: false,
 		err:       nil}.runTestGroupBy(t)
-
 }
 
+func TestSortBy(t *testing.T) {
+	src := []int{8, 2, 809, 40, 43, 32838, 2, 67}
+	want := []int{2, 2, 8, 40, 43, 67, 809, 32838}
+	compareInt := func(a, b int) int {
+		return a - b
+	}
+	type args[T any] struct {
+		comparator Comparator[int]
+		source     []T
+	}
+	type testsType[T any] struct {
+		name string
+		args args[T]
+		want []T
+	}
+
+	tests := []testsType[int]{
+		{"Sort int slice", args[int]{comparator: compareInt, source: src}, want},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			SortBy(tt.args.comparator, tt.args.source)
+			fmt.Print(tt.args.source)
+			if !reflect.DeepEqual(tt.want, tt.args.source) {
+				t.Errorf("List() = %v, want %v", tt.args.source, tt.want)
+			}
+		})
+	}
+}
