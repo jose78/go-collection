@@ -1,6 +1,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/jose78/go-collection)](https://goreportcard.com/report/github.com/jose78/go-collection)
 [![Coverage Status](https://coveralls.io/repos/github/jose78/go-collection/badge.svg?branch=master)](https://coveralls.io/github/jose78/go-collection?branch=master)
-[![CircleCI](https://circleci.com/gh/jose78/go-collection.svg?style=shield)](https://circleci.com/gh/jose78/go-collection)
+[![Go-Collections](https://github.com/jose78/go-collection/actions/workflows/go_collections.yml/badge.svg)](https://github.com/jose78/go-collection/actions/workflows/go_collections.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/jose78/go-collection/v2.svg)](https://pkg.go.dev/github.com/jose78/go-collection/v2)
 
 
@@ -16,244 +16,245 @@ Installation
 
 To install the package, use:
 
-
+```sh
     go get github.com/jose78/go-collection/v2
-
+```
 
 Usage
 -----
 
-### Types
 
-#### Touple
+### Filter
 
-Represents a key-value pair with a generic key and value.
+ Filter filters elements of a slice or array based on a predicate and stores the result in dest.
 
-```go
-    type Touple struct {
-        Key   any // Key is the key of the key-value pair.
-        Value any // Value is the value of the key-value pair.
-    }
-```
-
-#### Comparator
-```go
-type Comparator[T any] func(T, T) int 
-```
-
-Defines a comparison function for elements of type T. The function takes two arguments of type T and returns an integer:
-- A negative value indicates that the first argument is less than the second.
-- A zero value indicates that both arguments are equal.
-- A positive value indicates that the first argument is greater than the second.
-
-
-
-#### Mapper
-
-Represents a function that takes a value of any type `T` and returns a value of any type.
-
-```go
-    type Mapper[T any] func(T) any
-```
-
-#### Predicate
-
-Represents a function that takes a value of any type `T` and returns a boolean. It is used to test whether the input value satisfies a certain condition.
-
-```go
-    type Predicate[T any] func(T) bool
-```
-
-#### Action
-
-Represents a function that takes an index and a value of any type `T`. It is intended to be used in an iteration context, such as a forEach function, where it will be executed for each element in a collection.
-
-```go
-    type Action[T any] func(int, T)
-```
-
-##### KeySelector
-
-Represents a function that takes a key of type `K` and returns a `Touple` with the key and a value of type `V`. The key must be of a comparable type.
-
-```go
-    type KeySelector[K comparable, V any] func(K) Touple
-```
-
-#### Builder
-
-A struct with an error and the item that caused the error.
-
-```go
-    type Builder[T any] struct {
-        err  error
-        item T
-    }
-    
-    func (b *Builder[T]) Error() error {
-        return b.err
-    }
-    
-    type ErrorFormatter[T any] func(T) error // New type for error formatting
-    
-    func (b *Builder[T]) WithErrorMessage(fn ErrorFormatter[T]) *Builder[T] {
-        if fn != nil {
-            b.err = fn(b.item)
-        }
-        return b
-    }
-```
-
-### Functions
-
-
-#### Filter
-
-Applies a `Predicate` function to each element in the source collection and stores the elements that satisfy the predicate in the dest collection.
-
-```go
-    func Filter[T any](predicate Predicate[T], source any, dest any) *Builder[T]
-```
-
-#### ForEach
-
-Applies an `Action` function to each element in the source collection.
-
-```go
-    func ForEach[K any](action Action[K], src any) *Builder[K]
-```
-
-#### SortBy
-
-
- Comparator is a generic type that defines a comparison function for elements of type T.
- The function takes two arguments of type T and returns an integer:
- - A negative value indicates that the first argument is less than the second.
- - A zero value indicates that both arguments are equal.
- - A positive value indicates that the first argument is greater than the second.
-type Comparator[T any] func(T, T) int
-
- SortBy sorts the elements in the `source` using the provided `comparator`.
+ The `Filter` function takes a predicate, a source (which must be a pointer to a slice or array), and a destination
+ (which must also be a pointer to a slice or array). It filters the elements of the source that satisfy the predicate
+ and stores them in the destination.
 
  Parameters:
- - comparator: A comparison function of type Comparator[T], where T is the type of the elements in the `source`.
- - source: A value of type `any` that must be a map or a pointer to a list (slice or array).
+ - predicate: A function that determines whether an element should be included in the destination.
+ - source: A pointer to a slice or array to be filtered. It must be a pointer type.
+ - dest: A pointer to a slice or array where the filtered elements will be stored. It must be a pointer type.
 
  Returns:
- - An error if `source` is not a supported type or if an issue occurs during sorting.
+ - An error if the source or dest is not a pointer to a slice or array, otherwise returns nil.
 
- Description:
- The `SortBy` function accepts a `comparator` to determine the order of elements.
- The `source` can be:
- - A map whose keys will be sorted according to the `comparator`.
- - A pointer to a list (slice or array) of elements of type T.
+ Example usage:
+```go
+numbers := []int{1, 2, 3, 4, 5}
+var evens []int
 
- Usage Example:
- ```go
-
-	comparator := func(a, b int) int {
-	    return a - b
-	}
-
- slice := []int{3, 1, 2}
- err := SortBy(comparator, &slice)
-
-	if err != nil {
-	    log.Fatal(err)
-	}
-
-  slice is now []int{1, 2, 3}
- ```
-
- If `source` is not a map or a pointer to a list, the function returns an error.
-func SortBy[T any](comparator Comparator[T], source any) {
-	lst := source.(*[]T)
-	sort.Slice(*lst, func(i, j int) bool {
-		return comparator((*lst)[i], (*lst)[j]) < 0
-	})
-
+predicate := func(n int) bool {
+    return n%2 == 0
 }
 
+err := Filter(predicate, &numbers, &evens)
+if err != nil {
+    log.Fatal(err)
+}
 
-#### Zip
-
-groups elements from the source collection based on a specified key selector function and stores the results in the destination. It returns a Builder which can be used for further processing of the grouped data.
-
-```go
-    func Zip[K comparable, V any](keys []K, values []V, result map[K]V) *Builder[K]
+fmt.Println(evens) // Output: [2 4]
 ```
+ Note:
+ The `Filter` function does not modify the original slice or array.
 
-#### Map
 
-Applies a `Mapper` function to each element in the source collection and stores the result in the dest collection.
+
+### ForEach
+
+ ForEach applies an action to each element of a slice or array.
+
+ The `ForEach` function takes an action and a source (which must be a pointer to a slice or array) and applies
+ the action to each element of the source.
+
+ Parameters:
+ - action: A function that performs an operation on each element of the source.
+ - source: A pointer to a slice or array on which the action will be performed. It must be a pointer type.
+
+ Returns:
+ - An error if the source is not a pointer to a slice or array, otherwise returns nil.
+
+ Example usage:
 
 ```go
-    func Map[T any](mapper Mapper[T], source []T, dest *[]any) *Builder[T]
+people := []string{"Alice", "Bob", "Charlie"}
+
+action := func(name string) {
+    fmt.Println("Hello, " + name)
+}
+
+err := ForEach(action, &people)
+if err != nil {
+    log.Fatal(err)
+}
 ```
+ Note:
+ The `ForEach` function does not modify the original slice or array.
 
 
 
 
-### Example
--------
+### GroupBy
 
-Here is an example of how to use the `go-collection` package:
+ GroupBy groups elements of a slice or array based on a key selector function and stores the result in dest.
 
+ The `GroupBy` function takes a key selector function, a source (which must be a pointer to a slice or array), and a
+ destination (which must be either a pointer to a map or a slice). It groups the elements of the source based on the
+ keys returned by the key selector function and stores the results in the destination.
+
+ If the destination is a map, the function adds a tuple (key, value) where the key is the result of the key selector
+ and the value is the corresponding element from the source.
+
+ Parameters:
+ - keySelector: A function that selects a key for each element of the source.
+ - source: A pointer to a slice or array to be grouped. It must be a pointer type.
+ - dest: A pointer to a map or slice where the grouped elements will be stored. It must be a pointer type.
+
+ Returns:
+ - An error if the source or dest is not a pointer to a slice, array, or map, otherwise returns nil.
+
+ Example usage:
 ```go
-    package main
-    
-    import (
-        "fmt"
-        "github.com/jose78/go-collection/v2"
-    )
-    
-    func main() {
-        // Example using Map
-        source := []int{1, 2, 3, 4, 5}
-        dest := []any{}
-        mapper := func(x int) any { return x * 2 }
-        go-collection.Map(mapper, source, &dest)
-        fmt.Println(dest)
-    }
-```
-
-
-
-
-# Go Utility Functions
-
-This repository provides a collection of utility functions and types to perform various operations on generic types in Go.
-
-@utility functions
-
-## Types
-
-@types
-
-
-
-## SortBy
-
-```go
-func SortBy[T any](comparator Comparator[T], source any) error ```
-Corts the elements in the given `source` using the provided `comparator`. The `source` can be either a map or a pointer to a list (array or slice). Returns an error if the `source` is of an unsupported type.
-
-### Example
-```go
-type User {
+type Person struct {
     Name string
     Age  int
 }
 
-users = []User{{"Alice", 30}, {"Bob", 25}, {Charlie, 35}}
-
-Comparator = func(a , b User) int {
-    return a.Ame - b.Age
+people := []Person{
+    {"Alice", 30},
+    {"Bob", 25},
+    {"Charlie", 30},
 }
 
-err = SortBy(Comparator, & users)
+var groups map[int][]Person
+
+keySelector := func(p Person) int {
+    return p.Age
+}
+
+err := GroupBy(keySelector, &people, &groups)
 if err != nil {
     log.Fatal(err)
 }
-fmt.Println(users) // [{Bob 25}, {Alice 30}, {Charlie 35}]
+
+fmt.Println(groups) // Output: map[25:[{Bob 25}] 30:[{Alice 30} {Charlie 30}]]
 ```
+ Note:
+ The `GroupBy` function does not modify the original slice or array.
+
+### Map
+
+ Map applies a mapper function to each element of a slice or array and stores the result in dest.
+
+ The `Map` function takes a mapper function, a source (which must be a pointer to a slice or array), and a destination
+ (which must also be a pointer to a slice or array). It applies the mapper function to each element of the source and
+ stores the results in the destination.
+
+ Parameters:
+ - mapper: A function that transforms an element of the source into an element of the destination.
+ - source: A pointer to a slice or array to be transformed. It must be a pointer type.
+ - dest: A pointer to a slice or array where the transformed elements will be stored. It must be a pointer type.
+
+ Returns:
+ - An error if the source or dest is not a pointer to a slice or array, otherwise returns nil.
+
+ Example usage:
+```go
+numbers := []int{1, 2, 3, 4, 5}
+var squares []int
+
+mapper := func(n int) int {
+    return n * n
+}
+
+err := Map(mapper, &numbers, &squares)
+if err != nil {
+    log.Fatal(err)
+}
+
+fmt.Println(squares) // Output: [1 4 9 16 25]
+```
+ Note:
+ The `Map` function does not modify the original slice or array.
+
+### SortBy
+
+ SortBy sorts a slice or array based on a provided comparator.
+
+ The `SortBy` function takes a comparator and a source (which must be a pointer to a slice or array) 
+ and sorts the elements in the source according to the comparator. The comparator defines the ordering 
+ of the elements.
+
+ Parameters:
+ - comparator: A function that defines the order of the elements. It should return a negative value 
+   if the first argument is less than the second, zero if they are equal, and a positive value if 
+   the first argument is greater than the second.
+ - source: A pointer to a slice or array to be sorted. It must be a pointer type.
+
+ Returns:
+ - An error if the source is not a pointer to a slice or array, otherwise returns nil.
+
+Example usage:
+```go
+type Person struct {
+    Name string
+    Age  int
+}
+
+people := []Person{
+    {"Alice", 30},
+    {"Bob", 25},
+    {"Charlie", 35},
+}
+
+comparator := func(a, b Person) int {
+    return a.Age - b.Age
+}
+
+err := SortBy(comparator, &people)
+if err != nil {
+    log.Fatal(err)
+}
+
+fmt.Println(people) // Output: [{Bob 25} {Alice 30} {Charlie 35}]
+```
+ Note:
+ The `SortBy` function modifies the original slice or array.
+
+
+### ZIP
+
+ Zip combines two slices into a map.
+
+ The `Zip` function takes two slices, `keys` and `values`, and a destination map `dest`.
+ It populates the `dest` map with the `keys` and `values` such that each key in the `keys` slice
+ maps to the corresponding value in the `values` slice.
+
+ If the number of keys and values are not the same, the function will return an error indicating
+ that there is a mismatch in the number of elements.
+
+ Parameters:
+ - keys: A slice of keys to be used in the resulting map. Each key must be comparable.
+ - values: A slice of values corresponding to the keys. Can be of any type.
+ - dest: A map that will be populated with the keys and values. It must be initialized before
+   calling this function.
+
+ Returns:
+ - An error if there is a mismatch in the length of `keys` and `values`, otherwise returns nil.
+
+ Example usage:
+
+```go
+keys := []string{"a", "b", "c"}
+values := []int{1, 2, 3}
+dest := make(map[string]int)
+err := Zip(keys, values, dest)
+if err != nil {
+    log.Fatal(err)
+}
+
+fmt.Println(dest) // Output: map[a:1 b:2 c:3]
+```
+ Note:
+ The `Zip` function will overwrite any existing keys in the `dest` map with new values.
