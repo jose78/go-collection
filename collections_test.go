@@ -63,28 +63,6 @@ func TestZip(t *testing.T) {
 	}
 }
 
-func TestWithErrorMessage(t *testing.T) {
-	source := []int{1, 2, 3, 4}
-	var dest []any
-
-	mapper := func(n int) any {
-		if n == 3 {
-			panic("unexpected value")
-		}
-		return n * 2
-	}
-	builder := Map(mapper, source, &dest)
-
-	customErrFunc := func(item int) error {
-		return fmt.Errorf("custom error for item %d", item)
-	}
-
-	err := builder.WithErrorMessage(customErrFunc).Error()
-	if err == nil || err.Error() != "custom error for item 3" {
-		t.Fatalf("expected custom error for item 3, got %v", err)
-	}
-}
-
 func TestForEach(t *testing.T) {
 
 	var actionOk Action[testUser] = func(i int, tu testUser) {
@@ -101,34 +79,32 @@ func TestForEach(t *testing.T) {
 	src := generateTestCaseList()
 
 	type args struct {
-		action   Action[testUser]
-		errorFmt ErrorFormatter[testUser]
-		src      any
+		action Action[testUser]
+		src    any
 	}
 	tests := []struct {
-		name string
-		args args
-		want error
+		name      string
+		args      args
+		want      error
+		wantError bool
 	}{
-		{"Iterate over list of testUser", args{action: actionOk, src: src}, nil},
-		{"Iterate and generate and customizable error", args{action: actionKO, errorFmt: errorFmt, src: src}, fmt.Errorf("KO")},
+		{"Iterate over list of testUser", args{action: actionOk, src: src}, nil, false},
+		{"Iterate and generate and customizable error", args{action: actionKO, src: src}, fmt.Errorf("KO"), true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := ForEach(tt.args.action, tt.args.src)
-			if tt.want != nil && !reflect.ValueOf(got).IsZero() {
-				err := got.WithErrorMessage(tt.args.errorFmt).Error()
-				if err.Error() != tt.want.Error() {
-					t.Errorf("Each() = %v, want %v", got, tt.want)
-				}
+			err := ForEach(tt.args.action, tt.args.src)
+
+			if tt.wantError && err == nil {
+				t.Errorf("Each() = %v, want %v", err, tt.want)
 			}
+
 		})
 	}
 }
 
 type argsFilter[T any] struct {
 	predicate Predicate[T]
-	errorFmt  ErrorFormatter[T]
 	source    any
 	dest      any
 }
@@ -163,7 +139,7 @@ func isMaleAsTouple(tu Touple) bool {
 	return flag
 }
 
-func TestFilter2(t *testing.T) {
+func TestFilter(t *testing.T) {
 
 	resultListFiltered := []testUser{
 		john,
@@ -176,14 +152,14 @@ func TestFilter2(t *testing.T) {
 
 	testsTypeFilter[testUser]{
 		name:      "Filter male from list of test user",
-		args:      argsFilter[testUser]{isMale, errorFmt, generateTestCaseList(), &lstUsers},
+		args:      argsFilter[testUser]{isMale, generateTestCaseList(), &lstUsers},
 		want:      &resultListFiltered,
 		wantError: false,
 		err:       nil}.runTestFilter(t)
 
 	testsTypeFilter[Touple]{
 		name:      "Filter male from map of test user",
-		args:      argsFilter[Touple]{isMaleAsTouple, errorFmtAsTouple, generateTestCaseMap(), mapUsers},
+		args:      argsFilter[Touple]{isMaleAsTouple, generateTestCaseMap(), mapUsers},
 		want:      resultMapFiltered,
 		wantError: false,
 		err:       nil,
@@ -191,10 +167,9 @@ func TestFilter2(t *testing.T) {
 }
 
 type argsMap[T any] struct {
-	mapper   Mapper[T]
-	errorFmt ErrorFormatter[T]
-	source   any
-	dest     any
+	mapper Mapper[T]
+	source any
+	dest   any
 }
 type testsTypeMap[T any] struct {
 	name      string
@@ -250,14 +225,14 @@ func TestMap(t *testing.T) {
 
 	testsTypeMap[testUser]{
 		name:      "Geneare a list of names from Map.",
-		args:      argsMap[testUser]{mapperToNamesFromList, errorFmt, generateTestCaseList(), &lstUsersFromList},
+		args:      argsMap[testUser]{mapperToNamesFromList, generateTestCaseList(), &lstUsersFromList},
 		want:      &result,
 		wantError: false,
 		err:       nil}.runTestMap(t)
 
 	testsTypeMap[Touple]{
 		name:      "Generate a new Map taken the name as key and the struct as value.",
-		args:      argsMap[Touple]{mapperToNamesFromMap, errorFmtAsTouple, generateTestCaseMap(), &lstUsersFromMap},
+		args:      argsMap[Touple]{mapperToNamesFromMap, generateTestCaseMap(), &lstUsersFromMap},
 		want:      &result,
 		wantError: false,
 		err:       nil,
@@ -265,7 +240,7 @@ func TestMap(t *testing.T) {
 
 	testsTypeMap[string]{
 		name:      "Generate a new Map, taken as keyy the first name, and value the second name.",
-		args:      argsMap[string]{mapperSplitName, errorFmtAsString, lstUsersFromMap, names},
+		args:      argsMap[string]{mapperSplitName, lstUsersFromMap, names},
 		want:      resulNames,
 		wantError: false,
 		err:       nil,
@@ -273,10 +248,9 @@ func TestMap(t *testing.T) {
 }
 
 type argsGroupBy[T any] struct {
-	groupBy  KeySelector[T]
-	errorFmt ErrorFormatter[T]
-	source   any
-	dest     any
+	groupBy KeySelector[T]
+	source  any
+	dest    any
 }
 type testsTypeGroupBy[T any] struct {
 	name      string
@@ -311,7 +285,7 @@ func TestGroupBy(t *testing.T) {
 	result := map[string][]testUser{"male": {john, kyle}, "female": {sarah}}
 	testsTypeGroupBy[testUser]{
 		name:      "Filter male from list of test user",
-		args:      argsGroupBy[testUser]{keySelectorBySex, errorFmt, generateTestCaseList(), map[string][]testUser{}},
+		args:      argsGroupBy[testUser]{keySelectorBySex, generateTestCaseList(), map[string][]testUser{}},
 		want:      result,
 		wantError: false,
 		err:       nil}.runTestGroupBy(t)

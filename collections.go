@@ -19,64 +19,65 @@ type Touple struct {
 	Value any // Value is the value of the key-value pair.
 }
 
-// Mapper represents a function that takes a value of any type T and returns a value of any type.
-// T - the type of the input value.
-type Mapper[T any] func(T) any
-
-// Predicate represents a function that takes a value of any type T and returns a boolean.
-// It is used to test whether the input value satisfies a certain condition.
-// T - the type of the input value.
-type Predicate[T any] func(T) bool
-
-// Action represents a function that takes an index and a value of any type T.
-// It is intended to be used in an iteration context, such as a forEach function,
-// where it will be executed for each element in a collection.
-// T - the type of the input value.
-type Action[T any] func(int, T)
-
-// KeySelector represents a function that takes a key of type K and returns a Touple with the key and a value of type V.
-// The key must be of a comparable type.
-// K - the type of the key, which must be comparable.
-type KeySelector[K any] func(K) any
-
-// Builder struct with an error and the item that caused the error
-type Builder[T any] struct {
-	err  error
-	item T
+// BuilderError struct with an error and the item that caused the error
+type BuilderError[T any] struct {
+	err   error
+	index int
+	item  T
 }
 
 // Method to retrieve the error from the builder
-func (b *Builder[T]) Error() error {
+func (b *BuilderError[K]) Error() error {
 	return b.err
 }
 
-type ErrorFormatter[T any] func(T) error // New type for error formatting
+type ErrorFormatter[T any] func(int, T) (err error) // New type for error formatting
 
 // Method to set a custom error message in the builder using a function
-func (b *Builder[T]) WithErrorMessage(fn ErrorFormatter[T]) *Builder[T] {
+func (b *BuilderError[T]) WithErrorMessage(fn ErrorFormatter[T]) *BuilderError[T] {
 	if fn != nil {
-		b.err = fn(b.item)
+		b.err = fn(b.index, b.item)
 	}
 	return b
 }
 
-// ForEach applies an Action function to each element in the source collection.
-// T - the type of the elements in the source collection.
-// action - the function that is executed for each element, taking the index and the element as parameters.
-// source - the input collection of elements.
-// Returns an error if the operation fails.
-func ForEach[K any](action Action[K], src any) *Builder[K] {
-	var errBuilder *Builder[K]
+// Action is a function type that takes an index and a value of type T.
+// This function is used to perform an action on each element in a collection.
+type Action[T any] func(int, T)
+
+// ForEach applies the action function to each element in the source collection.
+// Parameters:
+//   - action: a function that takes an index and a value of type T and performs an action.
+//   - source: the collection of elements to iterate over. Must be a slice or array.
+//
+// Returns:
+//   - error: an error if the source is not of the appropriate type or if any other problem occurs during the operation.
+func ForEach[K any](action Action[K], src any) (err error) {
+	builderError := iterate(action, src)
+	if builderError != nil {
+		currentError := builderError.Error()
+		errorFormatter := func(index int, item K) error {
+			return fmt.Errorf("error processing item %v at index %d: %w", item, index, currentError)
+		}
+
+		err = builderError.WithErrorMessage(errorFormatter).Error()
+	}
+	return
+}
+
+func iterate[K any](action Action[K], src any) *BuilderError[K] {
+	var errBuilder *BuilderError[K]
 	evaluate := func(index int, internaParam any) {
-		defer func(item any) {
+		defer func(index int, item any) {
 			if err := recover(); err != nil {
 				valueParametrized := item.(K)
-				errBuilder = &Builder[K]{
-					item: valueParametrized,
-					err:  fmt.Errorf("Error: iterating within the forEach item:%v:  -->  %v", item, err),
+				errBuilder = &BuilderError[K]{
+					item:  valueParametrized,
+					index: index,
+					err:   err.(error),
 				}
 			}
-		}(internaParam)
+		}(index, internaParam)
 		action(index, internaParam.(K))
 	}
 	if IsMap(src) {
@@ -109,8 +110,8 @@ func ForEach[K any](action Action[K], src any) *Builder[K] {
 // values - the slice of values.
 // result - the map where the keys and values are combined.
 // Returns an error if the operation fails, such as when the lengths of keys and values do not match.
-func Zip[K comparable, V any](keys []K, values []V, result map[K]V) *Builder[K] {
-	b := &Builder[K]{}
+func Zip[K comparable, V any](keys []K, values []V, result map[K]V) *BuilderError[K] {
+	b := &BuilderError[K]{}
 	if len(keys) != len(values) {
 		b.err = errors.New("keys and values slices must have the same length")
 		return b
@@ -164,77 +165,121 @@ func store(data any, dest any) {
 	}
 }
 
-// Filter applies a Predicate function to each element in the source collection and stores the elements that satisfy the predicate in the dest collection.
-// T - the type of the elements in the source collection.
-// predicate - the function that tests each element.
-// source - the input collection of elements.
-// dest - the output collection where the filtered elements are stored; should be a pointer to a slice or a map (depending on the source).
-// Returns an error if the operation fails.
-func Filter[T any](predicate Predicate[T], source any, dest any) *Builder[T] {
+// Predicate is a function type that takes a value of type T and returns a boolean.
+// This function is used to test whether an input value satisfies a condition.
+// If the destination is of type map, the input value must be of type Tuple.
+type Predicate[T any] func(T) bool
+
+// Filter filters elements from the source using a predicate function and stores the results in the destination.
+// The destination must be a list (slice or array).
+// Parameters:
+//   - predicate: a function that takes a value of type T and returns a boolean indicating whether the value satisfies the condition.
+//   - source: the collection of elements to be filtered.
+//   - dest: the destination where the results will be stored. Must be a list (slice or array).
+//
+// Returns:
+//   - error: an error if the destination is not of the appropriate type or if any other problem occurs during the operation.
+func Filter[T any](predicate Predicate[T], source any, dest any) (err error) {
 	var action Action[T] = func(index int, item T) {
 		if predicate(item) {
 			store(item, dest)
 		}
 	}
-	return ForEach[T](action, source)
+
+	builderError := iterate(action, source)
+	if builderError != nil {
+		currentError := builderError.Error()
+		errorFormatter := func(index int, item T) error {
+			return fmt.Errorf("error processing item %v at index %d: %w", item, index, currentError)
+		}
+
+		err = builderError.WithErrorMessage(errorFormatter).Error()
+	}
+	return
 }
 
-// Map applies a Mapper function to each element in the source collection and stores the result in the dest collection.
-// T - the type of the elements in the source collection.
-// mapper - the function that transforms each element.
-// source - the input collection of elements.
-// dest - the output collection where the mapped elements are stored; should be a pointer to a slice or a map (depending on the source).
-// Returns an error if the operation fails.
-func Map[T any](mapper Mapper[T], source any, dest any) *Builder[T] {
+// Mapper is a function type that takes a value of type T and returns a value of any type.
+// This function is used to transform an input value.
+// If the destination is of type map, the input value must be of type Tuple.
+type Mapper[T any] func(T) any
+
+// Map applies the mapper function to each element in the source and stores the results in the destination.
+// The destination must be either a map or a list (slice or array).
+// Parameters:
+//   - mapper: a function that takes a value of type T and returns a transformed value.
+//   - source: the collection of elements to be mapped.
+//   - dest: the destination where the results will be stored. Must be a map or a list (slice or array).
+//
+// Returns:
+//   - error: an error if the destination is not of the appropriate type or if any other problem occurs during the operation.
+func Map[T any](mapper Mapper[T], source any, dest any) (err error) {
 	var action Action[T] = func(index int, item T) {
 		result := mapper(item)
 		store(result, dest)
 	}
-	return ForEach[T](action, source)
+
+	builderError := iterate(action, source)
+	if builderError != nil {
+		currentError := builderError.Error()
+		errorFormatter := func(index int, item T) error {
+			return fmt.Errorf("error processing item %v at index %d: %w", item, index, currentError)
+		}
+
+		err = builderError.WithErrorMessage(errorFormatter).Error()
+	}
+	return
 }
 
-// GroupBy groups elements from the source collection based on a specified key selector function
-// and stores the results in the destination. It returns a Builder which can be used for further
-// processing of the grouped data.
-//
+// KeySelector is a function type that takes a value of type K and returns a value of any type.
+// This function is used to select a key from an input value.
+// If the destination is of type map, the input value must be of type Tuple.
+type KeySelector[K any] func(K) any
+
+// GroupBy groups elements from the source using a key selection function (keySelector).
+// The results are stored in the destination (dest), which can only be of type map or a pointer to a list (slice or array).
 // Parameters:
-// - keySelector: A function that extracts the key from each element in the source collection.
-// - source: The collection of elements to be grouped.
-// - dest: The destination where the grouped elements will be stored.
+//   - keySelector: a function that takes a value of type T and returns a grouping key.
+//   - source: the collection of elements to be grouped.
+//   - dest: the destination where the results will be stored. Must be a map or a pointer to a list (slice or array).
 //
 // Returns:
-// - *Builder[T]: A Builder object for further processing of the grouped data.
-//
-// Example:
-//   type Person struct {
-//       Name string
-//       Age  int
-//   }
-//
-//   people := []Person{
-//       {Name: "Alice", Age: 30},
-//       {Name: "Bob", Age: 25},
-//       {Name: "Charlie", Age: 30},
-//   }
-//
-//   result := GroupBy(func(p Person) int { return p.Age }, people, dest)
-//   // This will group the people by age and store the results in 'dest'.
-
-func GroupBy[T any](keySelector KeySelector[T], source any, dest any) *Builder[T] {
+//   - error: an error if the destination is not of the appropriate type or if any other problem occurs during the operation.
+func GroupBy[T any](keySelector KeySelector[T], source any, dest any) (err error) {
 	var action Action[T] = func(index int, item T) {
 		result := keySelector(item)
 		touple := Touple{result, []T{item}}
 		store(touple, dest)
 	}
-	return ForEach[T](action, source)
+
+	builderError := iterate(action, source)
+	if builderError != nil {
+		currentError := builderError.Error()
+		errorFormatter := func(index int, item T) error {
+			return fmt.Errorf("error processing item %v at index %d: %w", item, index, currentError)
+		}
+
+		err = builderError.WithErrorMessage(errorFormatter).Error()
+	}
+	return
 }
 
+// Comparator is a function type that takes two values of type T and returns an integer.
+// The return value should be negative if the first value is less than the second,
+// zero if they are equal, and positive if the first value is greater than the second.
 type Comparator[T any] func(T, T) int
 
+// SortBy sorts the elements in the source using the provided comparator function.
+// The source must be a pointer to a list (array or slice).
+// Parameters:
+//   - comparator: a function that takes two values of type T and returns an integer
+//     indicating their order.
+//   - source: a pointer to the list (array or slice) to be sorted.
+//
+// Returns:
+//   - error: an error if the source is not of the appropriate type or if any other problem occurs during the operation.
 func SortBy[T any](comparator Comparator[T], source any) {
 	lst := source.(*[]T)
 	sort.Slice(*lst, func(i, j int) bool {
 		return comparator((*lst)[i], (*lst)[j]) < 0
 	})
-
 }

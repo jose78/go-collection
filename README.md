@@ -35,6 +35,18 @@ Represents a key-value pair with a generic key and value.
     }
 ```
 
+#### Comparator
+```go
+type Comparator[T any] func(T, T) int 
+```
+
+Defines a comparison function for elements of type T. The function takes two arguments of type T and returns an integer:
+- A negative value indicates that the first argument is less than the second.
+- A zero value indicates that both arguments are equal.
+- A positive value indicates that the first argument is greater than the second.
+
+
+
 #### Mapper
 
 Represents a function that takes a value of any type `T` and returns a value of any type.
@@ -107,6 +119,58 @@ Applies an `Action` function to each element in the source collection.
     func ForEach[K any](action Action[K], src any) *Builder[K]
 ```
 
+#### SortBy
+
+
+ Comparator is a generic type that defines a comparison function for elements of type T.
+ The function takes two arguments of type T and returns an integer:
+ - A negative value indicates that the first argument is less than the second.
+ - A zero value indicates that both arguments are equal.
+ - A positive value indicates that the first argument is greater than the second.
+type Comparator[T any] func(T, T) int
+
+ SortBy sorts the elements in the `source` using the provided `comparator`.
+
+ Parameters:
+ - comparator: A comparison function of type Comparator[T], where T is the type of the elements in the `source`.
+ - source: A value of type `any` that must be a map or a pointer to a list (slice or array).
+
+ Returns:
+ - An error if `source` is not a supported type or if an issue occurs during sorting.
+
+ Description:
+ The `SortBy` function accepts a `comparator` to determine the order of elements.
+ The `source` can be:
+ - A map whose keys will be sorted according to the `comparator`.
+ - A pointer to a list (slice or array) of elements of type T.
+
+ Usage Example:
+ ```go
+
+	comparator := func(a, b int) int {
+	    return a - b
+	}
+
+ slice := []int{3, 1, 2}
+ err := SortBy(comparator, &slice)
+
+	if err != nil {
+	    log.Fatal(err)
+	}
+
+  slice is now []int{1, 2, 3}
+ ```
+
+ If `source` is not a map or a pointer to a list, the function returns an error.
+func SortBy[T any](comparator Comparator[T], source any) {
+	lst := source.(*[]T)
+	sort.Slice(*lst, func(i, j int) bool {
+		return comparator((*lst)[i], (*lst)[j]) < 0
+	})
+
+}
+
+
 #### Zip
 
 Combines two slices into a map, using elements from the keys slice as keys and elements from the values slice as values.
@@ -123,12 +187,7 @@ Checks if the given element is of map type.
     func isMap(elements any) bool
 ```
 
-#### store
 
-Inserts data into the destination collection, which can be either a map or a slice.
-```go
-    func store(data any, dest any)
-```
 
 #### Filter
 
@@ -159,4 +218,45 @@ Here is an example of how to use the `go-collection` package:
         go-collection.Map(mapper, source, &dest)
         fmt.Println(dest)
     }
+```
+
+
+
+
+# Go Utility Functions
+
+This repository provides a collection of utility functions and types to perform various operations on generic types in Go.
+
+@utility functions
+
+## Types
+
+@types
+
+
+
+## SortBy
+
+```go
+func SortBy[T any](comparator Comparator[T], source any) error ```
+Corts the elements in the given `source` using the provided `comparator`. The `source` can be either a map or a pointer to a list (array or slice). Returns an error if the `source` is of an unsupported type.
+
+### Example
+```go
+type User {
+    Name string
+    Age  int
+}
+
+users = []User{{"Alice", 30}, {"Bob", 25}, {Charlie, 35}}
+
+Comparator = func(a , b User) int {
+    return a.Ame - b.Age
+}
+
+err = SortBy(Comparator, & users)
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Println(users) // [{Bob 25}, {Alice 30}, {Charlie 35}]
 ```
