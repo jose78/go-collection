@@ -19,22 +19,22 @@ type Touple struct {
 	Value any // Value is the value of the key-value pair.
 }
 
-// BuilderError struct with an error and the item that caused the error
-type BuilderError[T any] struct {
+// builderError struct with an error and the item that caused the error
+type builderError[T any] struct {
 	err   error
 	index int
 	item  T
 }
 
 // Method to retrieve the error from the builder
-func (b *BuilderError[K]) Error() error {
+func (b *builderError[K]) Error() error {
 	return b.err
 }
 
 type ErrorFormatter[T any] func(int, T) (err error) // New type for error formatting
 
 // Method to set a custom error message in the builder using a function
-func (b *BuilderError[T]) WithErrorMessage(fn ErrorFormatter[T]) *BuilderError[T] {
+func (b *builderError[T]) WithErrorMessage(fn ErrorFormatter[T]) *builderError[T] {
 	if fn != nil {
 		b.err = fn(b.index, b.item)
 	}
@@ -65,13 +65,13 @@ func ForEach[K any](action Action[K], src any) (err error) {
 	return
 }
 
-func iterate[K any](action Action[K], src any) *BuilderError[K] {
-	var errBuilder *BuilderError[K]
+func iterate[K any](action Action[K], src any) *builderError[K] {
+	var errBuilder *builderError[K]
 	evaluate := func(index int, internaParam any) {
 		defer func(index int, item any) {
 			if err := recover(); err != nil {
 				valueParametrized := item.(K)
-				errBuilder = &BuilderError[K]{
+				errBuilder = &builderError[K]{
 					item:  valueParametrized,
 					index: index,
 					err:   err.(error),
@@ -110,8 +110,8 @@ func iterate[K any](action Action[K], src any) *BuilderError[K] {
 // values - the slice of values.
 // result - the map where the keys and values are combined.
 // Returns an error if the operation fails, such as when the lengths of keys and values do not match.
-func Zip[K comparable, V any](keys []K, values []V, result map[K]V) *BuilderError[K] {
-	b := &BuilderError[K]{}
+func Zip[K comparable, V any](keys []K, values []V, result map[K]V) *builderError[K] {
+	b := &builderError[K]{}
 	if len(keys) != len(values) {
 		b.err = errors.New("keys and values slices must have the same length")
 		return b
