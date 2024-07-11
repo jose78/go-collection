@@ -1,7 +1,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/jose78/go-collection)](https://goreportcard.com/report/github.com/jose78/go-collection)
 [![Coverage Status](https://coveralls.io/repos/github/jose78/go-collection/badge.svg?branch=master)](https://coveralls.io/github/jose78/go-collection?branch=master)
 [![Go-Collections](https://github.com/jose78/go-collection/actions/workflows/go_collections.yml/badge.svg)](https://github.com/jose78/go-collection/actions/workflows/go_collections.yml)
-[![Go Reference](https://pkg.go.dev/badge/github.com/jose78/go-collection/v2.svg)](https://pkg.go.dev/github.com/jose78/go-collection/v2)
+[![Go Reference](https://pkg.go.dev/badge/github.com/jose78/go-collection/v1.svg)](https://pkg.go.dev/github.com/jose78/go-collection/)
 
 
 # Go-collection <img align="right" width="80" height="100" src="resources/gopher.png">
@@ -17,7 +17,8 @@ Installation
 To install the package, use:
 
 ```sh
-    go get github.com/jose78/go-collection/v1
+    go get github.com/jose78/go-collection
+
 ```
 
 Usage
