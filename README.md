@@ -18,7 +18,6 @@ To install the package, use:
 
 ```sh
     go get github.com/jose78/go-collection
-
 ```
 
 Usage
