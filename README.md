@@ -17,7 +17,7 @@ Installation
 To install the package, use:
 
 ```sh
-    go get github.com/jose78/go-collection/v2
+    go get github.com/jose78/go-collection/v1
 ```
 
 Usage
