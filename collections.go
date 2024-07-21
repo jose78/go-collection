@@ -1,10 +1,10 @@
 package collection
 
 import (
-	"errors"
-	"fmt"
-	"reflect"
-	"sort"
+        "errors"
+        "fmt"
+        "reflect"
+        "sort"
 )
 
 // Touple represents a key-value pair with a generic key and value.
@@ -15,30 +15,30 @@ import (
 // K - the type of the key, which must be comparable.
 // V - the type of the value, which can be any type.
 type Touple struct {
-	Key   any // Key is the key of the key-value pair.
-	Value any // Value is the value of the key-value pair.
+        Key   any // Key is the key of the key-value pair.
+        Value any // Value is the value of the key-value pair.
 }
 
 // builderError struct with an error and the item that caused the error
 type builderError[T any] struct {
-	err   error
-	index int
-	item  T
+        err   error
+        index int
+        item  T
 }
 
 // Method to retrieve the error from the builder
 func (b *builderError[K]) Error() error {
-	return b.err
+        return b.err
 }
 
 type ErrorFormatter[T any] func(int, T) (err error) // New type for error formatting
 
 // Method to set a custom error message in the builder using a function
 func (b *builderError[T]) WithErrorMessage(fn ErrorFormatter[T]) *builderError[T] {
-	if fn != nil {
-		b.err = fn(b.index, b.item)
-	}
-	return b
+        if fn != nil {
+                b.err = fn(b.index, b.item)
+        }
+        return b
 }
 
 // Action is a function type that takes an index and a value of type T.
@@ -53,54 +53,54 @@ type Action[T any] func(int, T)
 // Returns:
 //   - error: an error if the source is not of the appropriate type or if any other problem occurs during the operation.
 func ForEach[K any](action Action[K], src any) (err error) {
-	builderError := iterate(action, src)
-	if builderError != nil {
-		currentError := builderError.Error()
-		errorFormatter := func(index int, item K) error {
-			return fmt.Errorf("error processing item %v at index %d: %w", item, index, currentError)
-		}
+        builderError := iterate(action, src)
+        if builderError != nil {
+                currentError := builderError.Error()
+                errorFormatter := func(index int, item K) error {
+                        return fmt.Errorf("error processing item %v at index %d: %w", item, index, currentError)
+                }
 
-		err = builderError.WithErrorMessage(errorFormatter).Error()
-	}
-	return
+                err = builderError.WithErrorMessage(errorFormatter).Error()
+        }
+        return
 }
 
 func iterate[K any](action Action[K], src any) *builderError[K] {
-	var errBuilder *builderError[K]
-	evaluate := func(index int, internaParam any) {
-		defer func(index int, item any) {
-			if err := recover(); err != nil {
-				valueParametrized := item.(K)
-				errBuilder = &builderError[K]{
-					item:  valueParametrized,
-					index: index,
-					err:   err.(error),
-				}
-			}
-		}(index, internaParam)
-		action(index, internaParam.(K))
-	}
-	if IsMap(src) {
-		val := reflect.ValueOf(src)
-		count := -1
-		for _, key := range val.MapKeys() {
-			count++
-			value := val.MapIndex(key)
-			touple := Touple{key.Interface(), value.Interface()}
-			evaluate(count, touple)
-		}
-	} else {
-		for index, item := range src.([]K) {
-			if !reflect.ValueOf(errBuilder).IsZero() {
-				break
-			}
-			if !reflect.ValueOf(errBuilder).IsNil() {
-				break
-			}
-			evaluate(index, item)
-		}
-	}
-	return errBuilder
+        var errBuilder *builderError[K]
+        evaluate := func(index int, internaParam any) {
+                defer func(index int, item any) {
+                        if err := recover(); err != nil {
+                                valueParametrized := item.(K)
+                                errBuilder = &builderError[K]{
+                                        item:  valueParametrized,
+                                        index: index,
+                                        err:   err.(error),
+                                }
+                        }
+                }(index, internaParam)
+                action(index, internaParam.(K))
+        }
+        if IsMap(src) {
+                val := reflect.ValueOf(src)
+                count := -1
+                for _, key := range val.MapKeys() {
+                        count++
+                        value := val.MapIndex(key)
+                        touple := Touple{key.Interface(), value.Interface()}
+                        evaluate(count, touple)
+                }
+        } else {
+                for index, item := range src.([]K) {
+                        if !reflect.ValueOf(errBuilder).IsZero() {
+                                break
+                        }
+                        if !reflect.ValueOf(errBuilder).IsNil() {
+                                break
+                        }
+                        evaluate(index, item)
+                }
+        }
+        return errBuilder
 }
 
 // Zip combines two slices into a map, using elements from the keys slice as keys and elements from the values slice as values.
@@ -111,29 +111,29 @@ func iterate[K any](action Action[K], src any) *builderError[K] {
 // result - the map where the keys and values are combined.
 // Returns an error if the operation fails, such as when the lengths of keys and values do not match.
 func Zip[K comparable, V any](keys []K, values []V, result map[K]V) *builderError[K] {
-	b := &builderError[K]{}
-	if len(keys) != len(values) {
-		b.err = errors.New("keys and values slices must have the same length")
-		return b
-	}
-	for i, key := range keys {
-		defer func(k K, v V) {
-			if r := recover(); r != nil {
-				b.err = fmt.Errorf("error zipping item: %v", r)
-				b.item = k
-			}
-		}(key, values[i])
-		result[key] = values[i]
-	}
-	return b
+        b := &builderError[K]{}
+        if len(keys) != len(values) {
+                b.err = errors.New("keys and values slices must have the same length")
+                return b
+        }
+        for i, key := range keys {
+                defer func(k K, v V) {
+                        if r := recover(); r != nil {
+                                b.err = fmt.Errorf("error zipping item: %v", r)
+                                b.item = k
+                        }
+                }(key, values[i])
+                result[key] = values[i]
+        }
+        return b
 }
 
 // IsMap checks if the given element is of map type.
 // elements - the element to check.
 // Returns true if the element is a map, false otherwise.
 func IsMap(elements any) bool {
-	t := reflect.TypeOf(elements)
-	return reflect.Map == t.Kind()
+        t := reflect.TypeOf(elements)
+        return reflect.Map == t.Kind()
 }
 
 // store inserts data into the destination collection, which can be either a map or a slice.
@@ -142,27 +142,27 @@ func IsMap(elements any) bool {
 // If dest is a map, data.(Touple).Key is used as the key and data.(Touple).Value is used as the value.
 // If dest is a slice, data is appended to the slice.
 func store(data any, dest any) {
-	if IsMap(dest) {
-		val := reflect.ValueOf(dest)
-		keyVal := reflect.ValueOf(data.(Touple).Key)
-		valueVal := reflect.ValueOf(data.(Touple).Value)
-		if val.MapIndex(keyVal).IsValid() {
-			existingValue := val.MapIndex(keyVal)
-			if existingValue.Kind() == reflect.Slice && valueVal.Kind() == reflect.Slice {
-				mergedValue := reflect.AppendSlice(existingValue, valueVal)
-				val.SetMapIndex(keyVal, mergedValue)
-			} else {
-				val.SetMapIndex(keyVal, valueVal)
-			}
-		} else {
-			val.SetMapIndex(keyVal, valueVal)
-		}
-	} else {
-		sliceVal := reflect.ValueOf(dest).Elem()
-		elemVal := reflect.ValueOf(data)
-		result := reflect.Append(sliceVal, elemVal)
-		sliceVal.Set(result)
-	}
+        if IsMap(dest) {
+                val := reflect.ValueOf(dest)
+                keyVal := reflect.ValueOf(data.(Touple).Key)
+                valueVal := reflect.ValueOf(data.(Touple).Value)
+                if val.MapIndex(keyVal).IsValid() {
+                        existingValue := val.MapIndex(keyVal)
+                        if existingValue.Kind() == reflect.Slice && valueVal.Kind() == reflect.Slice {
+                                mergedValue := reflect.AppendSlice(existingValue, valueVal)
+                                val.SetMapIndex(keyVal, mergedValue)
+                        } else {
+                                val.SetMapIndex(keyVal, valueVal)
+                        }
+                } else {
+                        val.SetMapIndex(keyVal, valueVal)
+                }
+        } else {
+                sliceVal := reflect.ValueOf(dest).Elem()
+                elemVal := reflect.ValueOf(data)
+                result := reflect.Append(sliceVal, elemVal)
+                sliceVal.Set(result)
+        }
 }
 
 // Predicate is a function type that takes a value of type T and returns a boolean.
@@ -180,22 +180,22 @@ type Predicate[T any] func(T) bool
 // Returns:
 //   - error: an error if the destination is not of the appropriate type or if any other problem occurs during the operation.
 func Filter[T any](predicate Predicate[T], source any, dest any) (err error) {
-	var action Action[T] = func(index int, item T) {
-		if predicate(item) {
-			store(item, dest)
-		}
-	}
+        var action Action[T] = func(index int, item T) {
+                if predicate(item) {
+                        store(item, dest)
+                }
+        }
 
-	builderError := iterate(action, source)
-	if builderError != nil {
-		currentError := builderError.Error()
-		errorFormatter := func(index int, item T) error {
-			return fmt.Errorf("error processing item %v at index %d: %w", item, index, currentError)
-		}
+        builderError := iterate(action, source)
+        if builderError != nil {
+                currentError := builderError.Error()
+                errorFormatter := func(index int, item T) error {
+                        return fmt.Errorf("error processing item %v at index %d: %w", item, index, currentError)
+                }
 
-		err = builderError.WithErrorMessage(errorFormatter).Error()
-	}
-	return
+                err = builderError.WithErrorMessage(errorFormatter).Error()
+        }
+        return
 }
 
 // Mapper is a function type that takes a value of type T and returns a value of any type.
@@ -213,21 +213,21 @@ type Mapper[T any] func(T) any
 // Returns:
 //   - error: an error if the destination is not of the appropriate type or if any other problem occurs during the operation.
 func Map[T any](mapper Mapper[T], source any, dest any) (err error) {
-	var action Action[T] = func(index int, item T) {
-		result := mapper(item)
-		store(result, dest)
-	}
+        var action Action[T] = func(index int, item T) {
+                result := mapper(item)
+                store(result, dest)
+        }
 
-	builderError := iterate(action, source)
-	if builderError != nil {
-		currentError := builderError.Error()
-		errorFormatter := func(index int, item T) error {
-			return fmt.Errorf("error processing item %v at index %d: %w", item, index, currentError)
-		}
+        builderError := iterate(action, source)
+        if builderError != nil {
+                currentError := builderError.Error()
+                errorFormatter := func(index int, item T) error {
+                        return fmt.Errorf("error processing item %v at index %d: %w", item, index, currentError)
+                }
 
-		err = builderError.WithErrorMessage(errorFormatter).Error()
-	}
-	return
+                err = builderError.WithErrorMessage(errorFormatter).Error()
+        }
+        return
 }
 
 // KeySelector is a function type that takes a value of type K and returns a value of any type.
@@ -245,22 +245,22 @@ type KeySelector[K any] func(K) any
 // Returns:
 //   - error: an error if the destination is not of the appropriate type or if any other problem occurs during the operation.
 func GroupBy[T any](keySelector KeySelector[T], source any, dest any) (err error) {
-	var action Action[T] = func(index int, item T) {
-		result := keySelector(item)
-		touple := Touple{result, []T{item}}
-		store(touple, dest)
-	}
+        var action Action[T] = func(index int, item T) {
+                result := keySelector(item)
+                touple := Touple{result, []T{item}}
+                store(touple, dest)
+        }
 
-	builderError := iterate(action, source)
-	if builderError != nil {
-		currentError := builderError.Error()
-		errorFormatter := func(index int, item T) error {
-			return fmt.Errorf("error processing item %v at index %d: %w", item, index, currentError)
-		}
+        builderError := iterate(action, source)
+        if builderError != nil {
+                currentError := builderError.Error()
+                errorFormatter := func(index int, item T) error {
+                        return fmt.Errorf("error processing item %v at index %d: %w", item, index, currentError)
+                }
 
-		err = builderError.WithErrorMessage(errorFormatter).Error()
-	}
-	return
+                err = builderError.WithErrorMessage(errorFormatter).Error()
+        }
+        return
 }
 
 // Comparator is a function type that takes two values of type T and returns an integer.
@@ -279,22 +279,22 @@ type Comparator[T any] func(T, T) int
 //   - error: an error if the source is not of the appropriate type or if any other problem occurs during the operation.
 func SortBy[T any](comparator Comparator[T], source any) error {
 
-	if !IsListUpdatable(source) {
-		return fmt.Errorf("the provided source is not an updatable list (pointer to list): %v", source)
-	}
+        if !IsListUpdatable(source) {
+                return fmt.Errorf("the provided source is not an updatable list (pointer to list): %v", source)
+        }
 
-	lst := source.(*[]T)
-	sort.Slice(*lst, func(i, j int) bool {
-		return comparator((*lst)[i], (*lst)[j]) < 0
-	})
+        lst := source.(*[]T)
+        sort.Slice(*lst, func(i, j int) bool {
+                return comparator((*lst)[i], (*lst)[j]) < 0
+        })
 
-	return nil
+        return nil
 }
 
 func IsListUpdatable(source any) bool {
-	sourceType := reflect.TypeOf(source)
+        sourceType := reflect.TypeOf(source)
 
-	return reflect.Ptr == sourceType.Kind() &&
-		(reflect.Slice == sourceType.Elem().Kind() ||
-			reflect.Array == sourceType.Elem().Kind())
+        return reflect.Ptr == sourceType.Kind() &&
+                (reflect.Slice == sourceType.Elem().Kind() ||
+                        reflect.Array == sourceType.Elem().Kind())
 }
