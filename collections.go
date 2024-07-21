@@ -279,9 +279,9 @@ type Comparator[T any] func(T, T) int
 //   - error: an error if the source is not of the appropriate type or if any other problem occurs during the operation.
 func SortBy[T any](comparator Comparator[T], source any) error {
 
-	if ! IsListUpdatable(source){
+	if !IsListUpdatable(source) {
 		return fmt.Errorf("the provided source is not an updatable list (pointer to list): %v", source)
-	}  
+	}
 
 	lst := source.(*[]T)
 	sort.Slice(*lst, func(i, j int) bool {
@@ -291,11 +291,10 @@ func SortBy[T any](comparator Comparator[T], source any) error {
 	return nil
 }
 
+func IsListUpdatable(source any) bool {
+	sourceType := reflect.TypeOf(source)
 
-func  IsListUpdatable(source any) bool {
-	sourceType  := reflect.TypeOf(source)
-
-	return reflect.Ptr  == sourceType.Kind() && 
-	(reflect.Slice  == sourceType.Elem().Kind()  || 
-	reflect.Array  == sourceType.Elem().Kind())  
+	return reflect.Ptr == sourceType.Kind() &&
+		(reflect.Slice == sourceType.Elem().Kind() ||
+			reflect.Array == sourceType.Elem().Kind())
 }

@@ -302,10 +302,10 @@ func TestSortBy(t *testing.T) {
 		source     any
 	}
 	type testsType[T any] struct {
-		name string
-		args args[T]
-		want any
-		wantError bool 
+		name      string
+		args      args[T]
+		want      any
+		wantError bool
 	}
 
 	tests := []testsType[int]{
@@ -318,7 +318,7 @@ func TestSortBy(t *testing.T) {
 
 			if tt.wantError && got == nil {
 				t.Errorf("sortBy() KO = %v, wantError %v", got, tt.wantError)
-			} else if ! tt.wantError &&  !reflect.DeepEqual(tt.want, tt.args.source) {
+			} else if !tt.wantError && !reflect.DeepEqual(tt.want, tt.args.source) {
 				t.Errorf("List() = %v, want %v", tt.args.source, tt.want)
 			}
 		})
